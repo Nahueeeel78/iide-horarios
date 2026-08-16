@@ -14,19 +14,22 @@
 <meta name="theme-color" content="#3E1832">
 <style>
   :root{
-    --plum:#3E1832;
-    --plum-2:#5A2548;
-    --paper:#F6F1EC;
-    --paper-2:#EFE6DC;
-    --orange:#DD8A3E;
-    --orange-2:#C97327;
-    --teal:#7FB4B4;
-    --teal-2:#4E8A8A;
-    --ink:#2B1420;
-    --ink-soft:#6B5560;
-    --line:#DDD0C4;
-    --white:#FFFDFB;
-    --now:#D64A3A;
+    --plum:#1A0B2E;
+    --plum-2:#2A1449;
+    --heading:#FF2EC4;
+    --heading-2:#17F2FF;
+    --header-fg:#F4EBFF;
+    --paper:#0B0716;
+    --paper-2:#170F2A;
+    --orange:#FF6EC7;
+    --orange-2:#E84FB0;
+    --teal:#17F2FF;
+    --teal-2:#0FC7D4;
+    --ink:#EDE3FB;
+    --ink-soft:#9E8DBE;
+    --line:#3A2A5C;
+    --white:#150C29;
+    --now:#FF2EC4;
     --radius:14px;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
@@ -43,7 +46,7 @@
   /* Header */
   header{
     background:var(--plum);
-    color:var(--paper);
+    color:var(--header-fg);
     padding:22px 18px 20px;
     position:sticky; top:0; z-index:20;
     box-shadow:0 4px 14px rgba(0,0,0,.18);
@@ -87,7 +90,27 @@
   .pill.small{padding:6px 11px; font-size:12.5px;}
   .pill.teal.active{background:var(--teal-2); border-color:var(--teal-2);}
 
-  main{padding:16px; padding-bottom:100px; max-width:900px; margin:0 auto;}
+  main{padding:16px; padding-bottom:100px; max-width:900px; margin:0 auto; position:relative; z-index:1;}
+  .tabbar{position:relative; z-index:1;}
+
+  /* Capa de partículas de fondo, fija en toda la app, detrás de todo el contenido */
+  .fx-particles{
+    position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none;
+  }
+  .fx-particles .p{
+    position:absolute; bottom:-10px; border-radius:50%;
+    animation:fxFloat linear infinite;
+    opacity:0;
+  }
+  @keyframes fxFloat{
+    0%{ transform:translateY(0) scale(1); opacity:0; }
+    12%{ opacity:.75; }
+    88%{ opacity:.55; }
+    100%{ transform:translateY(-110vh) scale(.6); opacity:0; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .fx-particles{ display:none; }
+  }
 
   .year-meta{
     display:flex; align-items:baseline; justify-content:space-between;
@@ -117,7 +140,7 @@
   }
   table.grid thead th{
     background:var(--plum);
-    color:var(--paper);
+    color:var(--header-fg);
     font-size:11.5px;
     text-transform:uppercase;
     letter-spacing:.8px;
@@ -132,7 +155,7 @@
     padding:8px 8px;
     font-size:11.5px;
     font-weight:700;
-    color:var(--plum);
+    color:var(--heading);
     width:98px;
     white-space:nowrap;
     vertical-align:top;
@@ -179,24 +202,46 @@
     background:var(--paper-2);
   }
   td.clase-cell{position:relative;}
+  .dia-cell{
+    padding:8px 7px !important;
+    cursor:pointer;
+    vertical-align:top;
+    min-width:118px;
+  }
+  .dia-cell .materia{ display:block; font-size:12.5px; font-weight:800; line-height:1.25; }
+  .dia-cell .profesor{ display:block; font-size:11px; color:var(--ink-soft); font-weight:600; margin-top:2px; }
+  .dia-cell .aula{ display:block; font-size:10.5px; font-weight:700; margin-top:4px; color:var(--teal-2); }
+  .dia-cell.empty-slot{ text-align:center; vertical-align:middle; }
+  .dia-cell.empty-slot:active{ background:var(--paper-2) !important; }
+  .dia-cell.no-slot{ background:var(--paper-2); text-align:center; vertical-align:middle; cursor:default; }
+  .dia-cell.is-now-cell{
+    box-shadow: inset 0 0 0 2px #4CFBEA, 0 0 10px rgba(76,251,234,.5), 0 0 16px rgba(255,46,196,.3);
+    animation: neonCardGlowSm 2.4s ease-in-out infinite;
+  }
+  @media (prefers-reduced-motion: reduce){ .dia-cell.is-now-cell{ animation:none; } }
+  table.dia-grid thead th{ padding:9px 5px; line-height:1.3; }
   .now-ring{
     position:absolute; inset:3px;
-    border:2.5px solid var(--now);
+    border:2.5px solid #4CFBEA;
     border-radius:9px;
     pointer-events:none;
-    animation:pulseRing 1.6s ease-in-out infinite;
+    box-shadow:0 0 10px rgba(76,251,234,.55), 0 0 18px rgba(255,46,196,.3);
+    animation:neonCardGlowSm 2.4s ease-in-out infinite;
   }
   .now-tag{
     position:absolute; top:2px; right:2px;
-    background:var(--now); color:#fff;
+    background:#0B0716; color:#4CFBEA;
     font-size:8.5px; font-weight:800; letter-spacing:.4px;
-    padding:2px 5px; border-radius:6px;
+    padding:2px 6px; border-radius:6px;
+    border:1px solid #4CFBEA;
+    text-shadow:0 0 5px #4CFBEA;
     z-index:2;
   }
-  @keyframes pulseRing{
-    0%,100%{ box-shadow:0 0 0 0 rgba(214,74,58,.35); }
-    50%{ box-shadow:0 0 0 5px rgba(214,74,58,0); }
+  @keyframes neonCardGlowSm{
+    0%,100%{ box-shadow:0 0 10px rgba(76,251,234,.55), 0 0 18px rgba(255,46,196,.3); }
+    50%{ box-shadow:0 0 4px rgba(76,251,234,.3), 0 0 8px rgba(255,46,196,.15); }
   }
+  @media (prefers-reduced-motion: reduce){ .now-ring{ animation:none; } }
 
   .add-row-btn{
     display:flex; align-items:center; justify-content:center; gap:6px;
@@ -271,14 +316,14 @@
   }
   .btn-primary{background:var(--orange); color:#fff;}
   .btn-primary:active{background:var(--orange-2);}
-  .btn-danger{background:#F4E4E0; color:#A23B2E;}
-  .btn-danger:active{background:#EAD0C9;}
+  .btn-danger{background:rgba(255,107,107,.16); color:#FF8B8B;}
+  .btn-danger:active{background:rgba(255,107,107,.28);}
   .btn-ghost{background:var(--paper-2); color:var(--ink);}
   .btn-ghost:active{background:var(--line);}
 
   .toast{
     position:fixed; left:50%; bottom:26px; transform:translateX(-50%);
-    background:var(--plum); color:var(--paper);
+    background:var(--plum); color:var(--header-fg);
     padding:10px 18px; border-radius:999px; font-size:13px;
     opacity:0; pointer-events:none; transition:opacity .25s;
     z-index:60;
@@ -308,7 +353,7 @@
   }
   .view-btn.active{
     background:var(--plum);
-    color:var(--paper);
+    color:var(--header-fg);
     border-color:var(--plum);
   }
 
@@ -320,18 +365,18 @@
   .aula-day-group{margin-bottom:18px;}
   .aula-day-group h3{
     font-size:13px; text-transform:uppercase; letter-spacing:1px;
-    color:var(--plum); margin:0 0 8px 2px;
+    color:var(--heading); margin:0 0 8px 2px;
   }
   .aula-entry{
     background:var(--white); border:1px solid var(--line); border-radius:12px;
     padding:11px 13px; margin-bottom:8px;
     display:flex; justify-content:space-between; gap:10px; align-items:center;
   }
-  .aula-entry.conflict{border-color:#C94B36; background:#FBEDEA;}
+  .aula-entry.conflict{border-color:#FF6B6B; background:rgba(255,107,107,.12);}
   .aula-entry .info .time{font-size:11.5px; color:var(--ink-soft); font-weight:700;}
-  .aula-entry .info .mat{font-size:13.5px; font-weight:700; color:var(--plum-2); margin-top:2px;}
+  .aula-entry .info .mat{font-size:13.5px; font-weight:700; color:var(--heading-2); margin-top:2px;}
   .aula-entry .info .meta{font-size:11.5px; color:var(--ink-soft); margin-top:1px;}
-  .aula-entry .warn{font-size:11px; color:#C94B36; font-weight:700; white-space:nowrap;}
+  .aula-entry .warn{font-size:11px; color:#FF6B6B; font-weight:700; white-space:nowrap;}
 
   .manage-list-item{
     display:flex; align-items:center; justify-content:space-between;
@@ -339,16 +384,40 @@
   }
   .manage-list-item span{font-size:14px;}
   .manage-list-item button{
-    border:none; background:none; color:#C94B36; font-size:13px; font-weight:700; padding:4px 8px;
+    border:none; background:none; color:#FF6B6B; font-size:13px; font-weight:700; padding:4px 8px;
   }
 
   /* día view */
   .dia-carrera-group{margin-bottom:26px;}
   .dia-carrera-group h3{
     font-size:15px; text-transform:uppercase; letter-spacing:1px;
-    color:var(--plum); margin:0 0 10px 2px; font-weight:800;
+    color:var(--heading); margin:0 0 10px 2px; font-weight:800;
     display:flex; align-items:center; gap:8px;
   }
+  .carrera-title-grande, .dia-carrera-group h3.carrera-title-grande{
+    display:block;
+    text-align:center;
+    font-size:1.55em;
+    font-weight:800;
+    line-height:1.3;
+    margin:38px 0 22px;
+    color:#fff;
+    animation: carreraGlow 2.6s ease-in-out infinite;
+  }
+  .carrera-title-grande .cuatri{
+    display:block;
+    font-size:.42em;
+    font-weight:700;
+    letter-spacing:1.4px;
+    text-transform:uppercase;
+    margin-top:8px;
+    opacity:.9;
+  }
+  @keyframes carreraGlow{
+    0%,100%{ text-shadow:0 0 8px var(--glow-color), 0 0 20px var(--glow-color), 0 0 32px var(--glow-color); }
+    50%{ text-shadow:0 0 4px var(--glow-color), 0 0 10px var(--glow-color); }
+  }
+  @media (prefers-reduced-motion: reduce){ .carrera-title-grande{ animation:none; text-shadow:0 0 10px var(--glow-color); } }
   .dia-carrera-group .anio-label{
     font-size:12.5px; color:var(--ink-soft); margin:14px 2px 8px; font-weight:800;
     text-transform:uppercase; letter-spacing:.5px;
@@ -380,7 +449,7 @@
     font-weight:800;
   }
   .aula-chip.sin-asignar{
-    border-style:dashed; color:#A34A2E; border-color:#A34A2E; background:#FBEDE6;
+    border-style:dashed; color:#FF9E7D; border-color:#FF9E7D; background:rgba(255,158,125,.12);
   }
   .edit-aula-btn{
     flex:0 0 auto;
@@ -404,19 +473,57 @@
   }
   .clase-card{align-items:flex-start; gap:12px;}
   .clase-card .avatar-col{display:flex; flex-direction:column; align-items:center; gap:6px; flex:0 0 auto;}
+
+  /* Indicador "cursando ahora" — estilo neón, alto contraste, pensado para
+     que se note sin depender de sonido (timbres/anuncios). */
   .now-badge{
-    display:inline-flex; align-items:center; gap:4px;
-    background:var(--now); color:#fff; font-size:10.5px; font-weight:800;
-    padding:3px 8px; border-radius:999px; letter-spacing:.3px;
-    animation:pulseDot 1.6s ease-in-out infinite;
+    display:inline-flex; align-items:center; gap:6px;
+    background:#0B0716; color:#4CFBEA;
+    font-size:11px; font-weight:800;
+    padding:4px 10px; border-radius:999px; letter-spacing:.6px;
+    text-transform:uppercase;
+    border:1px solid #4CFBEA;
+    text-shadow:0 0 6px #4CFBEA, 0 0 14px #4CFBEA;
+    box-shadow:0 0 8px rgba(76,251,234,.55), 0 0 18px rgba(255,46,196,.35);
+    animation:neonFlicker 1.8s ease-in-out infinite;
   }
-  .now-badge .dot{width:6px; height:6px; border-radius:50%; background:#fff; display:inline-block;}
-  @keyframes pulseDot{
-    0%,100%{ opacity:1; } 50%{ opacity:.55; }
+  .now-badge .dot{
+    width:7px; height:7px; border-radius:50%;
+    background:#FF2EC4; display:inline-block;
+    box-shadow:0 0 6px #FF2EC4, 0 0 12px #FF2EC4;
+    animation:neonDot 1.8s ease-in-out infinite;
+  }
+  @keyframes neonFlicker{
+    0%,19%,21%,54%,56%,100%{
+      opacity:1;
+      text-shadow:0 0 6px #4CFBEA, 0 0 14px #4CFBEA, 0 0 22px rgba(76,251,234,.6);
+      box-shadow:0 0 8px rgba(76,251,234,.6), 0 0 20px rgba(255,46,196,.4);
+    }
+    20%,55%{
+      opacity:.72;
+      text-shadow:0 0 2px #4CFBEA;
+      box-shadow:0 0 3px rgba(76,251,234,.3);
+    }
+  }
+  @keyframes neonDot{
+    0%,100%{ transform:scale(1); opacity:1; }
+    50%{ transform:scale(1.35); opacity:.7; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .now-badge, .now-badge .dot{ animation:none; }
   }
   .clase-card.is-now{
     border-width:2px;
-    box-shadow:0 0 0 3px rgba(214,74,58,.14);
+    border-color:#4CFBEA;
+    box-shadow:0 0 0 2px #0B0716, 0 0 0 4px #4CFBEA, 0 0 22px rgba(76,251,234,.45), 0 0 34px rgba(255,46,196,.25);
+    animation:neonCardGlow 2.4s ease-in-out infinite;
+  }
+  @keyframes neonCardGlow{
+    0%,100%{ box-shadow:0 0 0 2px #0B0716, 0 0 0 4px #4CFBEA, 0 0 22px rgba(76,251,234,.45), 0 0 34px rgba(255,46,196,.25); }
+    50%{ box-shadow:0 0 0 2px #0B0716, 0 0 0 4px #4CFBEA, 0 0 12px rgba(76,251,234,.25), 0 0 18px rgba(255,46,196,.15); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .clase-card.is-now{ animation:none; }
   }
   .materia-bar{
     width:6px; align-self:stretch; border-radius:6px; flex:0 0 auto;
@@ -438,6 +545,7 @@
 </style>
 </head>
 <body>
+<div class="fx-particles"><div class="p" style="left:32.4%; width:3.5px; height:3.5px; background:#17F2FF; box-shadow:0 0 6px #17F2FF, 0 0 12px #17F2FF; animation-duration:14.9s; animation-delay:-1.0s;"></div><div class="p" style="left:52.4%; width:4.1px; height:4.1px; background:#FF2EC4; box-shadow:0 0 6px #FF2EC4, 0 0 12px #FF2EC4; animation-duration:9.5s; animation-delay:-7.1s;"></div><div class="p" style="left:5.5%; width:4.3px; height:4.3px; background:#17F2FF; box-shadow:0 0 6px #17F2FF, 0 0 12px #17F2FF; animation-duration:9.6s; animation-delay:-1.3s;"></div><div class="p" style="left:41.9%; width:5.5px; height:5.5px; background:#FF2EC4; box-shadow:0 0 6px #FF2EC4, 0 0 12px #FF2EC4; animation-duration:10.1s; animation-delay:-3.1s;"></div><div class="p" style="left:61.0%; width:5.8px; height:5.8px; background:#17F2FF; box-shadow:0 0 6px #17F2FF, 0 0 12px #17F2FF; animation-duration:14.2s; animation-delay:-5.6s;"></div><div class="p" style="left:93.8%; width:3.1px; height:3.1px; background:#FF2EC4; box-shadow:0 0 6px #FF2EC4, 0 0 12px #FF2EC4; animation-duration:16.7s; animation-delay:-4.1s;"></div><div class="p" style="left:15.6%; width:3.4px; height:3.4px; background:#17F2FF; box-shadow:0 0 6px #17F2FF, 0 0 12px #17F2FF; animation-duration:11.8s; animation-delay:-11.4s;"></div><div class="p" style="left:19.0%; width:4.7px; height:4.7px; background:#FF2EC4; box-shadow:0 0 6px #FF2EC4, 0 0 12px #FF2EC4; animation-duration:14.8s; animation-delay:-5.2s;"></div><div class="p" style="left:53.5%; width:3.2px; height:3.2px; background:#17F2FF; box-shadow:0 0 6px #17F2FF, 0 0 12px #17F2FF; animation-duration:9.5s; animation-delay:-2.9s;"></div><div class="p" style="left:66.0%; width:4.3px; height:4.3px; background:#FF2EC4; box-shadow:0 0 6px #FF2EC4, 0 0 12px #FF2EC4; animation-duration:11.8s; animation-delay:-8.2s;"></div><div class="p" style="left:44.6%; width:3.9px; height:3.9px; background:#17F2FF; box-shadow:0 0 6px #17F2FF, 0 0 12px #17F2FF; animation-duration:16.1s; animation-delay:-9.8s;"></div><div class="p" style="left:24.9%; width:4.7px; height:4.7px; background:#FF2EC4; box-shadow:0 0 6px #FF2EC4, 0 0 12px #FF2EC4; animation-duration:13.7s; animation-delay:-12.3s;"></div><div class="p" style="left:70.6%; width:3.9px; height:3.9px; background:#17F2FF; box-shadow:0 0 6px #17F2FF, 0 0 12px #17F2FF; animation-duration:17.8s; animation-delay:-1.7s;"></div><div class="p" style="left:41.3%; width:5.3px; height:5.3px; background:#FF2EC4; box-shadow:0 0 6px #FF2EC4, 0 0 12px #FF2EC4; animation-duration:10.4s; animation-delay:-6.8s;"></div><div class="p" style="left:5.7%; width:5.0px; height:5.0px; background:#17F2FF; box-shadow:0 0 6px #17F2FF, 0 0 12px #17F2FF; animation-duration:15.9s; animation-delay:-8.0s;"></div><div class="p" style="left:84.3%; width:3.9px; height:3.9px; background:#FF2EC4; box-shadow:0 0 6px #FF2EC4, 0 0 12px #FF2EC4; animation-duration:15.3s; animation-delay:-8.3s;"></div></div>
 
 <header>
   <div class="brand">
@@ -471,7 +579,7 @@
 <script>
 (function(){
   var STORAGE_KEY = 'iide-horarios-v1';
-  var DATA_VERSION = 2; // v2: horario de Analista de Sistemas actualizado (materias, profesores y aulas del Excel)
+  var DATA_VERSION = 3; // v3: Sistemas primero, bloques de horas agrupados por materia
   var DIAS = ['Lunes','Martes','Miércoles','Jueves','Viernes'];
 
   function uid(){ return Math.random().toString(36).slice(2,9); }
@@ -553,18 +661,18 @@
       aulas: ['Aula 2/3','Laboratorio','Sum','Biblioteca','Aula P1','Aula P2','Aula Anexo P1','Aula Anexo P2'],
       carreras: [
         {
-          id: uid(), nombre: 'Administración de Empresas',
-          años: [
-            {id: uid(), nombre: '1° Año "A"', cohorte: '55/19', horas: adm1Horas, clases: adm1Clases},
-            {id: uid(), nombre: '2° Año "A"', cohorte: '55/19', horas: adm2Horas, clases: adm2Clases}
-          ]
-        },
-        {
           id: uid(), nombre: 'Analista de Sistemas',
           años: [
             {id: uid(), nombre: '1° Año "A"', cohorte: '170/16', horas: sis1Horas, clases: sis1Clases},
             {id: uid(), nombre: '2° Año "A"', cohorte: '170/16', horas: sis2Horas, clases: sis2Clases},
             {id: uid(), nombre: '3° Año "A"', cohorte: '170/16', horas: sis3Horas, clases: sis3Clases}
+          ]
+        },
+        {
+          id: uid(), nombre: 'Administración de Empresas',
+          años: [
+            {id: uid(), nombre: '1° Año "A"', cohorte: '55/19', horas: adm1Horas, clases: adm1Clases},
+            {id: uid(), nombre: '2° Año "A"', cohorte: '55/19', horas: adm2Horas, clases: adm2Clases}
           ]
         }
       ]
@@ -607,16 +715,26 @@
       state.data.aulas = ['Aula 2/3','Laboratorio','Sum','Biblioteca','Aula P1','Aula P2','Aula Anexo P1','Aula Anexo P2'];
     }
     // migración: actualizar horario de Analista de Sistemas con la última versión del Excel
-    if((state.data._version || 1) < DATA_VERSION){
-      var fresh = defaultData();
-      var freshSistemas = fresh.carreras.find(function(c){ return c.nombre === 'Analista de Sistemas'; });
-      var idx = state.data.carreras.findIndex(function(c){ return c.nombre === 'Analista de Sistemas'; });
-      if(freshSistemas && idx !== -1){
-        state.data.carreras[idx] = freshSistemas;
+    if((state.data._version || 1) < 2){
+      var fresh2 = defaultData();
+      var freshSistemas = fresh2.carreras.find(function(c){ return c.nombre === 'Analista de Sistemas'; });
+      var idx2 = state.data.carreras.findIndex(function(c){ return c.nombre === 'Analista de Sistemas'; });
+      if(freshSistemas && idx2 !== -1){
+        state.data.carreras[idx2] = freshSistemas;
       }
+      toast('Horario de Analista de Sistemas actualizado');
+    }
+    // migración: Analista de Sistemas va primero
+    if((state.data._version || 1) < 3){
+      var sisIdx = state.data.carreras.findIndex(function(c){ return c.nombre === 'Analista de Sistemas'; });
+      if(sisIdx > 0){
+        var sisCarrera = state.data.carreras.splice(sisIdx, 1)[0];
+        state.data.carreras.unshift(sisCarrera);
+      }
+    }
+    if((state.data._version || 1) < DATA_VERSION){
       state.data._version = DATA_VERSION;
       await saveData();
-      toast('Horario de Analista de Sistemas actualizado');
     }
     state.view = 'dia';
     state.diaSel = hoyDiaName();
@@ -713,13 +831,6 @@
     meta.className = 'year-meta';
     meta.innerHTML = '<h2 class="display">' + anio.nombre + '</h2><span class="cohort">Cohorte ' + anio.cohorte + '</span>';
     main.appendChild(meta);
-
-    var legend = document.createElement('div');
-    legend.className = 'legend';
-    legend.innerHTML =
-      '<span class="legend-chip"><span class="sw" style="background:var(--now)"></span>Clase en curso ahora</span>' +
-      '<span class="legend-chip">💻 Laboratorio · 🔊 Sum · 📚 Biblioteca · 🚪 Aula · ❔ Sin asignar</span>';
-    main.appendChild(legend);
 
     var gridWrap = document.createElement('div');
     gridWrap.className = 'grid-wrap';
@@ -884,6 +995,49 @@
     return as < be && bs < ae;
   }
 
+  // Agrupa horas seguidas de la misma materia/profesor/aula en un solo bloque,
+  // para no repetir la misma tarjeta varias veces si una materia dura 2 o 3 horas.
+  function agruparBloques(entries){
+    var bloques = [];
+    entries.forEach(function(e){
+      var last = bloques[bloques.length - 1];
+      var mismaClase = last &&
+        last.clase.materia === e.clase.materia &&
+        last.clase.profesor === e.clase.profesor &&
+        last.clase.aula === e.clase.aula;
+      var seguido = last && timeToMin(last.horaFin) === timeToMin(e.hora.inicio);
+      if(mismaClase && seguido){
+        last.horaFin = e.hora.fin;
+        last.keys.push(e.key);
+        last.horas.push(e.hora);
+      }else{
+        bloques.push({
+          clase: e.clase,
+          horaInicio: e.hora.inicio,
+          horaFin: e.hora.fin,
+          keys: [e.key],
+          horas: [e.hora]
+        });
+      }
+    });
+    return bloques;
+  }
+
+  // Color fijo por carrera, para diferenciar de un vistazo "1° Año" de una carrera del "1° Año" de la otra.
+  var CARRERA_COLORS = {};
+  var CARRERA_PALETTE = ['#4E8A8A','#C97327','#7A4FBE','#2E8FB0','#B5477A'];
+  function carreraColor(nombre){
+    if(!CARRERA_COLORS[nombre]){
+      var idx = Object.keys(CARRERA_COLORS).length % CARRERA_PALETTE.length;
+      CARRERA_COLORS[nombre] = CARRERA_PALETTE[idx];
+    }
+    return CARRERA_COLORS[nombre];
+  }
+  function anioNumero(nombre){
+    var m = String(nombre||'').match(/\d+/);
+    return m ? m[0] : '?';
+  }
+
   function renderDiaView(){
     var main = document.getElementById('main');
     main.innerHTML = '';
@@ -909,14 +1063,6 @@
     meta.innerHTML = '<h2 class="display">' + state.diaSel + (esHoy ? ' · Hoy' : '') + '</h2>';
     main.appendChild(meta);
 
-    var legend = document.createElement('div');
-    legend.className = 'legend';
-    legend.innerHTML =
-      '<span class="legend-chip"><span class="sw" style="background:var(--now)"></span>Clase en curso ahora</span>' +
-      '<span class="legend-chip">💻 Laboratorio · 🔊 Sum · 📚 Biblioteca · 🚪 Aula · ❔ Sin asignar</span>' +
-      '<span class="legend-chip">Cada materia tiene su color · cada profesor su inicial</span>';
-    main.appendChild(legend);
-
     var anyEntries = false;
 
     state.data.carreras.forEach(function(carrera){
@@ -925,71 +1071,134 @@
       });
       if(!carreraHasEntries) return;
       anyEntries = true;
+      var cColor = carreraColor(carrera.nombre);
 
       var group = document.createElement('div');
       group.className = 'dia-carrera-group';
       var h3 = document.createElement('h3');
-      h3.textContent = carrera.nombre;
+      h3.className = 'carrera-title-grande';
+      h3.style.setProperty('--glow-color', cColor);
+      h3.innerHTML = escapeHtml(carrera.nombre) + '<span class="cuatri">– 2° Cuatrimestre de 2026</span>';
       group.appendChild(h3);
 
-      carrera.años.forEach(function(anio){
+      // Filas y columnas: fila = horario, columna = año. Dentro de una carrera
+      // todos los años comparten la misma franja horaria, así que arman una
+      // sola tabla en vez de listas separadas.
+      var añosConHoras = carrera.años.filter(function(a){ return a.horas.length; });
+      if(!añosConHoras.length){ main.appendChild(group); return; }
+
+      var unificadas = {};
+      añosConHoras.forEach(function(anio){
+        anio.horas.forEach(function(h){
+          var k = h.inicio + '→' + h.fin;
+          if(!unificadas[k]) unificadas[k] = {inicio:h.inicio, fin:h.fin, label:h.label};
+        });
+      });
+      var filas = Object.keys(unificadas).map(function(k){ return unificadas[k]; });
+      filas.sort(function(a,b){ return (timeToMin(a.inicio)||0) - (timeToMin(b.inicio)||0); });
+      var filaIndexPorInicio = {};
+      filas.forEach(function(f,i){ filaIndexPorInicio[f.inicio] = i; });
+
+      // Por cada año: sus bloques de hoy (agrupados) + en qué fila empiezan / cuántas ocupan.
+      var colInfo = añosConHoras.map(function(anio){
+        var horaPorInicio = {};
+        anio.horas.forEach(function(h){ horaPorInicio[h.inicio] = h; });
+
         var entries = [];
         anio.horas.forEach(function(hora){
           var key = hora.id + '_' + state.diaSel;
           var c = anio.clases[key];
-          if(c && (c.materia || c.profesor)){
-            entries.push({hora:hora, key:key, clase:c});
-          }
+          if(c && (c.materia || c.profesor)) entries.push({hora:hora, key:key, clase:c});
         });
-        if(!entries.length) return;
         entries.sort(function(a,b){ return (timeToMin(a.hora.inicio)||0) - (timeToMin(b.hora.inicio)||0); });
+        var bloques = agruparBloques(entries);
 
-        var anioLabel = document.createElement('div');
-        anioLabel.className = 'anio-label';
-        anioLabel.textContent = anio.nombre + (anio.cohorte ? ' · Cohorte ' + anio.cohorte : '');
-        group.appendChild(anioLabel);
-
-        entries.forEach(function(e){
-          var ms = materiaStyle(e.clase.materia);
-          var nowActive = isNow(e.hora, state.diaSel);
-          var card = document.createElement('div');
-          card.className = 'clase-card' + (nowActive ? ' is-now' : '');
-          card.style.borderColor = nowActive ? 'var(--now)' : 'var(--line)';
-
-          var bar = document.createElement('div');
-          bar.className = 'materia-bar';
-          bar.style.background = ms.border;
-          card.appendChild(bar);
-
-          var avatarCol = document.createElement('div');
-          avatarCol.className = 'avatar-col';
-          var avatar = document.createElement('div');
-          avatar.className = 'avatar';
-          avatar.style.background = avatarColor(e.clase.profesor);
-          avatar.textContent = avatarInicial(e.clase.profesor);
-          avatarCol.appendChild(avatar);
-          card.appendChild(avatarCol);
-
-          var aulaChip = e.clase.aula
-            ? '<span class="aula-chip">' + aulaIcon(e.clase.aula) + ' ' + escapeHtml(e.clase.aula) + '</span>'
-            : '<span class="aula-chip sin-asignar">❔ Sin aula asignada</span>';
-          var info = document.createElement('div');
-          info.className = 'info';
-          info.innerHTML =
-            '<div class="time">' + e.hora.inicio + ' – ' + e.hora.fin + (nowActive ? ' &nbsp;<span class="now-badge"><span class="dot"></span>AHORA</span>' : '') + '</div>' +
-            '<div class="mat" style="color:' + ms.text + '">' + escapeHtml(e.clase.materia || '(sin materia)') + '</div>' +
-            '<div class="meta">' + (e.clase.profesor ? escapeHtml(e.clase.profesor) : 'Sin profesor asignado') + '</div>' +
-            '<div>' + aulaChip + '</div>';
-          card.appendChild(info);
-
-          var editBtn = document.createElement('button');
-          editBtn.className = 'edit-aula-btn';
-          editBtn.textContent = '✏️ Aula';
-          editBtn.onclick = function(){ openClaseSheet(carrera, anio, e.hora, state.diaSel, e.key); };
-          card.appendChild(editBtn);
-          group.appendChild(card);
+        var bloquePorFila = {}, consumida = {};
+        bloques.forEach(function(bloque){
+          var startIdx = filaIndexPorInicio[bloque.horaInicio];
+          if(startIdx === undefined) return;
+          var span = 0;
+          for(var i=startIdx; i<filas.length; i++){
+            if(timeToMin(filas[i].inicio) < timeToMin(bloque.horaFin)) span++; else break;
+          }
+          bloquePorFila[startIdx] = {bloque:bloque, span:span};
+          for(var j=startIdx+1; j<startIdx+span; j++) consumida[j] = true;
         });
+
+        return {anio:anio, horaPorInicio:horaPorInicio, bloquePorFila:bloquePorFila, consumida:consumida};
       });
+
+      var gridWrap = document.createElement('div');
+      gridWrap.className = 'grid-wrap';
+      var table = document.createElement('table');
+      table.className = 'grid dia-grid';
+
+      var thead = document.createElement('thead');
+      var trh = document.createElement('tr');
+      trh.appendChild(document.createElement('th'));
+      colInfo.forEach(function(col){
+        var th = document.createElement('th');
+        th.innerHTML =
+          '<span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:' + cColor + ';color:#fff;font-size:11.5px;font-weight:800;">' + anioNumero(col.anio.nombre) + '</span>';
+        trh.appendChild(th);
+      });
+      thead.appendChild(trh);
+      table.appendChild(thead);
+
+      var tbody = document.createElement('tbody');
+      filas.forEach(function(fila, filaIdx){
+        var tr = document.createElement('tr');
+        var thHora = document.createElement('td');
+        thHora.className = 'hora-cell';
+        thHora.innerHTML = fila.label + '<span class="rango">' + fila.inicio + ' – ' + fila.fin + '</span>';
+        tr.appendChild(thHora);
+
+        colInfo.forEach(function(col){
+          if(col.consumida[filaIdx]) return; // cubierta por un rowspan de arriba
+
+          var td = document.createElement('td');
+          td.className = 'clase-cell dia-cell';
+
+          if(col.bloquePorFila[filaIdx]){
+            var bq = col.bloquePorFila[filaIdx];
+            var bloque = bq.bloque;
+            if(bq.span > 1) td.rowSpan = bq.span;
+            var ms = materiaStyle(bloque.clase.materia);
+            var nowActive = bloque.horas.some(function(h){ return isNow(h, state.diaSel); });
+            td.style.background = ms.bg;
+            td.style.borderLeft = '4px solid ' + ms.border;
+            if(nowActive) td.classList.add('is-now-cell');
+            var aulaTxt = bloque.clase.aula
+              ? aulaIcon(bloque.clase.aula) + ' ' + escapeHtml(bloque.clase.aula)
+              : '<span style="color:var(--ink-soft)">❔ Sin aula</span>';
+            td.innerHTML =
+              (nowActive ? '<span class="now-badge" style="margin-bottom:4px;"><span class="dot"></span>Ahora</span>' : '') +
+              '<span class="materia" style="color:' + ms.text + '">' + escapeHtml(bloque.clase.materia || '(sin materia)') + '</span>' +
+              (bloque.clase.profesor ? '<span class="profesor">' + escapeHtml(bloque.clase.profesor) + '</span>' : '') +
+              '<span class="aula">' + aulaTxt + '</span>';
+            td.onclick = (function(anioRef){
+              return function(){ openClaseGroupSheet(carrera, anioRef, state.diaSel, bloque); };
+            })(col.anio);
+          }else if(col.horaPorInicio[fila.inicio]){
+            var horaSlot = col.horaPorInicio[fila.inicio];
+            var key = horaSlot.id + '_' + state.diaSel;
+            td.className += ' empty-slot';
+            td.innerHTML = '<span style="color:var(--line); font-size:16px;">+</span>';
+            td.onclick = (function(anioRef, horaRef, keyRef){
+              return function(){ openClaseSheet(carrera, anioRef, horaRef, state.diaSel, keyRef); };
+            })(col.anio, horaSlot, key);
+          }else{
+            td.className += ' no-slot';
+            td.innerHTML = '<span style="color:var(--line);">—</span>';
+          }
+          tr.appendChild(td);
+        });
+
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      gridWrap.appendChild(table);
+      group.appendChild(gridWrap);
 
       main.appendChild(group);
     });
@@ -1168,6 +1377,51 @@
     });
   }
 
+  // Edita/borra un bloque de horas seguidas (misma materia) todas juntas,
+  // para que al cambiar el aula de "Matemática 18:30-20:30" se actualicen las 4 horas de una.
+  function openClaseGroupSheet(carrera, anio, dia, bloque){
+    var clase = bloque.clase;
+    var html =
+      '<h3>' + dia + ' · ' + bloque.horaInicio + ' – ' + bloque.horaFin + '</h3>' +
+      '<div class="sheet-sub">' + anio.nombre + (bloque.horas.length > 1 ? ' · ' + bloque.horas.length + ' horas seguidas' : '') + '</div>' +
+      '<div class="field"><label>Materia</label><input id="f-materia" type="text" placeholder="Ej: Matemática" value="' + escapeHtml(clase.materia||'') + '"></div>' +
+      '<div class="field"><label>Profesor/a</label><input id="f-profesor" type="text" placeholder="Ej: Montero" value="' + escapeHtml(clase.profesor||'') + '"></div>' +
+      '<div class="field"><label>Aula</label>' + aulaSelectHtml(clase.aula||'') + '</div>' +
+      '<div class="sheet-actions">' +
+        '<button class="btn btn-danger" id="btn-del">Borrar</button>' +
+        '<button class="btn btn-ghost" id="btn-cancel">Cancelar</button>' +
+        '<button class="btn btn-primary" id="btn-save">Guardar</button>' +
+      '</div>';
+    openSheet(html, function(sheet){
+      sheet.querySelector('#btn-cancel').onclick = closeSheet;
+      sheet.querySelector('#btn-del').onclick = async function(){
+        bloque.keys.forEach(function(k){ delete anio.clases[k]; });
+        await saveData();
+        closeSheet();
+        render();
+        toast('Clase borrada');
+      };
+      sheet.querySelector('#btn-save').onclick = async function(){
+        var materia = sheet.querySelector('#f-materia').value.trim();
+        var profesor = sheet.querySelector('#f-profesor').value.trim();
+        var aula = sheet.querySelector('#f-aula').value.trim();
+        var conflict = false;
+        bloque.keys.forEach(function(k, i){
+          if(!materia && !profesor){
+            delete anio.clases[k];
+          }else{
+            anio.clases[k] = {materia:materia, profesor:profesor, aula:aula};
+          }
+          if(aula && hayConflictoAula(aula, dia, bloque.horas[i], k)) conflict = true;
+        });
+        await saveData();
+        closeSheet();
+        render();
+        toast(conflict ? '⚠ Guardado, pero esa aula ya está ocupada a esa hora' : 'Guardado');
+      };
+    });
+  }
+
   function hayConflictoAula(aula, dia, hora, ownKey){
     var found = false;
     state.data.carreras.forEach(function(carrera){
@@ -1311,6 +1565,16 @@
   }
 
   loadData();
+
+  // Se fija cada 20 segundos si cambió qué clase está "cursando ahora"
+  // (una terminó, empieza otra) y refresca la pantalla sola — sin recargar
+  // y sin interrumpir si hay una ventana de edición abierta.
+  setInterval(function(){
+    if(!state.data) return;
+    var sheetOpen = document.getElementById('backdrop').classList.contains('open');
+    if(sheetOpen) return;
+    render();
+  }, 20000);
 })();
 </script>
 </body>
