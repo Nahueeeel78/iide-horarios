@@ -1559,45 +1559,62 @@ init();
 // cerrar deslizando el dedo hacia abajo, sin depender de acertarle a una X chica.
 function activarDeslizarParaCerrar() {
   const paneles = [
-    { overlayId:'themeOverlay', modalId:'themeModal', close:closeThemeModal },
-    { overlayId:'manageOverlay', modalId:'manageModal', close:closeManageModal },
-    { overlayId:'correlOverlay', modalId:'correlModal', close:closeCorrelModal },
-    { overlayId:'planOverlay', modalId:'planModal', close:closePlanModal },
-    { overlayId:null, modalId:'careerMenu', close:() => document.getElementById('careerMenu').classList.remove('show') },
+    { modalId:'themeModal', close:closeThemeModal, direccion:'abajo' },
+    { modalId:'manageModal', close:closeManageModal, direccion:'abajo' },
+    { modalId:'correlModal', close:closeCorrelModal, direccion:'abajo' },
+    { modalId:'planModal', close:closePlanModal, direccion:'abajo' },
+    { modalId:'careerMenu', close:() => document.getElementById('careerMenu').classList.remove('show'), direccion:'lados' },
   ];
 
   paneles.forEach(p => {
     const modal = document.getElementById(p.modalId);
     if (!modal) return;
-    let startY = null;
+
+    // Cada panel tiene su propio estado, completamente independiente del resto.
+    let startX = null, startY = null;
     let startScrollTop = 0;
-    let arrastrando = false;
+    let eje = null; // 'y' (abajo) o 'x' (costado), se define recién al mover
 
     modal.addEventListener('touchstart', (e) => {
+      startX = e.touches[0].clientX;
       startY = e.touches[0].clientY;
       startScrollTop = modal.scrollTop;
-      arrastrando = false;
+      eje = null;
     }, { passive:true });
 
     modal.addEventListener('touchmove', (e) => {
       if (startY === null) return;
+      const deltaX = e.touches[0].clientX - startX;
       const deltaY = e.touches[0].clientY - startY;
-      // Solo arrastra el panel si el dedo baja Y ya estamos arriba del todo del scroll
-      if (deltaY > 0 && startScrollTop <= 0) {
-        arrastrando = true;
+
+      if (eje === null) {
+        // Definimos una sola vez, según el primer movimiento claro, si es vertical u horizontal
+        if (Math.abs(deltaY) > 8 && Math.abs(deltaY) > Math.abs(deltaX) && deltaY > 0 && startScrollTop <= 0) {
+          eje = 'y';
+        } else if (p.direccion === 'lados' && Math.abs(deltaX) > 8 && Math.abs(deltaX) > Math.abs(deltaY)) {
+          eje = 'x';
+        }
+      }
+
+      if (eje === 'y') {
+        e.preventDefault(); // evita que la página de fondo se mueva junto con el panel
         modal.style.transform = `translateY(${Math.min(deltaY, 260)}px)`;
         modal.style.transition = 'none';
+      } else if (eje === 'x') {
+        e.preventDefault();
+        modal.style.transform = `translateX(${deltaX}px)`;
+        modal.style.transition = 'none';
       }
-    }, { passive:true });
+    }, { passive:false });
 
     modal.addEventListener('touchend', (e) => {
-      if (!arrastrando) { startY = null; return; }
-      const deltaY = (e.changedTouches[0].clientY - startY);
       modal.style.transition = '';
+      const cerrar =
+        (eje === 'y' && (e.changedTouches[0].clientY - startY) > 90) ||
+        (eje === 'x' && Math.abs(e.changedTouches[0].clientX - startX) > 90);
       modal.style.transform = '';
-      if (deltaY > 90) { p.close(); }
-      startY = null;
-      arrastrando = false;
+      if (cerrar) p.close();
+      startX = null; startY = null; eje = null;
     });
   });
 }
