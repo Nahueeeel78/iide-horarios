@@ -269,21 +269,21 @@
 
   /* ------- popover de edición (con flecha, ancla a la celda tocada) ------- */
   #editOverlay {
-    position:fixed; inset:0; background:transparent; display:none; z-index:500;
+    position:fixed; inset:0; background:rgba(0,0,0,.55); display:none;
+    z-index:500;
   }
   #editOverlay.show { display:block; }
   #editModal {
-    position:fixed; background:var(--panel2); width:260px; max-width:calc(100vw - 32px);
-    border-radius:14px; padding:16px 14px; border:1px solid rgba(255,201,110,.35);
+    position:fixed; background:var(--panel2); width:calc(100% - 48px); max-width:320px;
+    max-height:calc(100vh - 48px); overflow-y:auto;
+    border-radius:16px; padding:14px 16px 18px; border:1px solid rgba(255,201,110,.35);
     box-shadow:0 12px 32px rgba(0,0,0,.5); animation: popIn .18s ease;
   }
-  #editModal::before {
-    content:""; position:absolute; width:13px; height:13px; background:var(--panel2);
-    border-left:1px solid rgba(255,201,110,.35); border-top:1px solid rgba(255,201,110,.35);
-    transform:rotate(45deg); left:var(--edit-arrow-left, 24px);
+  #editModal .em-drag {
+    display:flex; justify-content:center; padding:2px 0 10px; cursor:grab; touch-action:none;
   }
-  #editModal.arrow-top::before { top:-7px; }
-  #editModal.arrow-bottom::before { bottom:-7px; transform:rotate(225deg); }
+  #editModal .em-drag:active { cursor:grabbing; }
+  #editModal .em-drag .dots { width:36px; height:5px; border-radius:99px; background:rgba(255,201,110,.35); }
   @keyframes popIn { from{ opacity:0; transform:scale(.94) } to{ opacity:1; transform:scale(1) } }
   #editModal h3 { font-family:var(--font-display); font-size:13px; color:var(--accent); margin-bottom:2px; }
   #editModal .em-sub { font-size:10px; opacity:.6; margin-bottom:12px; }
@@ -293,7 +293,7 @@
     background:var(--bg); color:var(--text); font-size:12.5px; margin-bottom:10px; font-family:'Inter',sans-serif;
   }
   #editModal input:focus, #editModal select:focus { outline:none; border-color:var(--accent); }
-  .em-actions { display:flex; gap:8px; margin-top:4px; }
+  .em-actions { display:flex; gap:8px; margin-top:4px; position:sticky; bottom:0; background:var(--panel2); padding-top:4px; }
   .em-actions button {
     flex:1; padding:9px; border-radius:8px; border:none; font-weight:700; font-size:11.5px; cursor:pointer;
   }
@@ -495,6 +495,39 @@
   .correl-req.libre { background:rgba(255,255,255,.04); opacity:.65; }
   .correl-req.libre .cr-text b { opacity:.6; }
 
+  .cc-nombre-row {
+    display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px;
+  }
+  .cc-nombre-row .cc-nombre { margin-bottom:0; flex:1; min-width:0; }
+  .ver-video-btn {
+    flex-shrink:0; display:flex; align-items:center; gap:6px;
+    background:transparent; border:none; padding:4px 0; cursor:pointer;
+    color:var(--accent); font-size:12px; font-weight:700;
+    text-decoration:underline; text-underline-offset:3px;
+  }
+  .ver-video-btn .vv-play {
+    width:16px; height:16px; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .ver-video-btn .vv-play::before {
+    content:""; width:0; height:0;
+    border-top:5px solid transparent; border-bottom:5px solid transparent;
+    border-left:8px solid var(--accent);
+  }
+
+  /* ------- reproductor de video: se abre, reproduce, y se cierra solo al terminar ------- */
+  #videoOverlay {
+    position:fixed; inset:0; background:rgba(0,0,0,.9); display:none;
+    align-items:center; justify-content:center; z-index:900; padding:16px;
+  }
+  #videoOverlay.show { display:flex; }
+  #videoOverlay .video-close {
+    position:absolute; top:20px; right:20px; width:36px; height:36px; border-radius:50%;
+    background:rgba(255,255,255,.15); color:#fff; border:none; font-size:16px; z-index:2;
+  }
+  #videoOverlay video {
+    width:100%; max-width:480px; max-height:80vh; border-radius:14px; background:#000;
+  }
+
   /* ------- modal de Plan de Estudios ------- */
   #planOverlay {
     position:fixed; inset:0; background:rgba(0,0,0,.55); display:none;
@@ -509,6 +542,13 @@
   #planModal .th-handle { width:36px; height:4px; background:rgba(255,201,110,.35); border-radius:99px; margin:0 auto 14px; }
   #planModal h3 { font-family:var(--font-display); font-size:14.5px; color:var(--accent); margin-bottom:2px; }
   #planModal .mm-sub { font-size:10.5px; opacity:.55; margin-bottom:14px; }
+
+  .correl-career-tabs { display:flex; gap:8px; margin-bottom:14px; }
+  .correl-career-tabs button {
+    flex:1; padding:10px 8px; border-radius:11px; border:1.5px solid rgba(255,201,110,.25);
+    background:var(--panel2); color:var(--text); font-size:11.5px; font-weight:700; cursor:pointer;
+  }
+  .correl-career-tabs button.active { border-color:var(--accent); background:rgba(255,201,110,.15); color:var(--accent); }
 
   .plan-career-label {
     font-family:var(--font-display); font-size:12.5px; font-weight:800; color:var(--text);
@@ -643,8 +683,14 @@
     <div class="th-handle"></div>
     <h3>🔗 Régimen de Correlatividades</h3>
     <div class="mm-sub">Qué materias necesitás tener aprobadas antes de cada una</div>
+    <div class="correl-career-tabs" id="correlCareerTabs"></div>
     <div id="correlList"></div>
   </div>
+</div>
+
+<div id="videoOverlay">
+  <button class="video-close" onclick="cerrarVideo()">✕</button>
+  <video id="videoPlayer" playsinline controls></video>
 </div>
 
 <div id="planOverlay" onclick="closePlanModal()">
@@ -658,6 +704,7 @@
 
 <div id="editOverlay">
   <div id="editModal">
+    <div class="em-drag" id="emDrag"><div class="dots"></div></div>
     <h3 id="emTitle">Editar materia</h3>
     <div class="em-sub" id="emSub">18:30 – 19:50</div>
     <label>Nombre de la materia</label>
@@ -754,6 +801,27 @@ const CARRERAS = {
   }
 };
 
+/* ================= GUARDADO: funciona acá en Claude (window.storage) y también
+   una vez publicada en GitHub (localStorage del navegador). Importante: en
+   GitHub, cada celular/navegador guarda SOLO sus propios cambios -- no se
+   comparten entre empleados. Para que algo se vea igual en todos los
+   celulares hay que editarlo en el código y subirlo a GitHub. ================= */
+async function storageGet(key) {
+  try {
+    if (window.storage) {
+      const r = await window.storage.get(key, false);
+      return r ? r.value : null;
+    }
+  } catch(e) {}
+  try { return localStorage.getItem(key); } catch(e) { return null; }
+}
+async function storageSet(key, value) {
+  try {
+    if (window.storage) { await window.storage.set(key, value, false); return; }
+  } catch(e) {}
+  try { localStorage.setItem(key, value); } catch(e) {}
+}
+
 let carreraActual = 'as';
 function C() { return CARRERAS[carreraActual]; }
 
@@ -763,30 +831,58 @@ function C() { return CARRERAS[carreraActual]; }
 const CORRELATIVIDADES = {
   as: {
     1: [
-      { cod:'1.2.3.8', nombre:'Sistemas Administrativos', b:['Organización Empresarial'], c:['Organización Empresarial'] },
-      { cod:'1.2.3.9', nombre:'Arquitectura y Sistemas Operativos', b:[], c:['Introducción a la Informática'] },
-      { cod:'1.2.2.10', nombre:'Estructura de Datos', b:['Algoritmos'], c:['Algoritmos'] },
-      { cod:'1.2.2.11', nombre:'Taller de Computación 2', b:['Taller de Computación 1'], c:['Taller de Computación 1'] },
-      { cod:'1.2.2.12', nombre:'Estadística', b:[], c:['Matemática'] },
-      { cod:'1.2.1.13', nombre:'Inglés 2', b:['Inglés 1'], c:['Inglés 1'] },
-      { cod:'1.2.1.14', nombre:'DI: Comunicaciones Efectivas', b:[], c:[] },
+      { cod:'1.2.3.8', nombre:'Sistemas Administrativos', b:['Organización Empresarial'], c:['Organización Empresarial'], video:'videos/sistemas-administrativos.mp4' },
+      { cod:'1.2.3.9', nombre:'Arquitectura y Sistemas Operativos', video:'videos/arquitectura-y-sistemas-operativos.mp4', b:[], c:['Introducción a la Informática'] },
+      { cod:'1.2.2.10', nombre:'Estructura de Datos', video:'videos/estructura-de-datos.mp4', b:['Algoritmos'], c:['Algoritmos'] },
+      { cod:'1.2.2.11', nombre:'Taller de Computación 2', video:'videos/taller-de-computacion-2.mp4', b:['Taller de Computación 1'], c:['Taller de Computación 1'] },
+      { cod:'1.2.2.12', nombre:'Estadística', video:'videos/estadistica.mp4', b:[], c:['Matemática'] },
+      { cod:'1.2.1.13', nombre:'Inglés 2', video:'videos/ingles-2.mp4', b:['Inglés 1'], c:['Inglés 1'] },
+      { cod:'1.2.1.14', nombre:'DI: Comunicaciones Efectivas', video:'videos/di.mp4', b:[], c:[] },
     ],
     2: [
-      { cod:'2.1.3.15', nombre:'Modelos Estratégicos de Negocios', b:[], c:['Sistemas Administrativos'] },
-      { cod:'2.1.4.16', nombre:'PP1: Diseño y Administración de Base de Datos', b:[], c:['Arquitectura y Sistemas Operativos'] },
-      { cod:'2.1.3.17', nombre:'Técnicas de Almacenamiento de Datos', b:['Estructura de Datos'], c:['Estructura de Datos','Taller de Computación 2'] },
-      { cod:'2.1.3.18', nombre:'Programación Orientada a Objetos', b:['Estructura de Datos'], c:['Estructura de Datos','Taller de Computación 2'] },
-      { cod:'2.1.3.19', nombre:'Taller de Computación 3', b:['Taller de Computación 2'], c:['Taller de Computación 2'] },
-      { cod:'2.1.1.20', nombre:'Ética y Deontología Profesional', b:[], c:[] },
-      { cod:'2.2.3.21', nombre:'Análisis y Metodología de Sistemas', b:[], c:['Modelos Estratégicos de Negocios'] },
-      { cod:'2.2.3.22', nombre:'Redes de Comunicación Informática', b:[], c:['Arquitectura y Sistemas Operativos'] },
-      { cod:'2.2.4.23', nombre:'PP2: Integración de Programación', b:['Técnicas de Almacenamiento de Datos','Programación Orientada a Objetos'], c:['Técnicas de Almacenamiento de Datos','Programación Orientada a Objetos'] },
-      { cod:'2.2.3.24', nombre:'Taller de Computación 4', b:['Taller de Computación 3'], c:['Taller de Computación 3'] },
-      { cod:'2.2.2.25', nombre:'Simulación de Procesos', b:[], c:['Taller de Computación 3'] },
-      { cod:'2.2.1.26', nombre:'DI: Presentaciones Efectivas', b:[], c:['Estadística'] },
+      { cod:'2.1.3.15', nombre:'Modelos Estratégicos de Negocios', video:'videos/modelos-estrategicos-de-negocios.mp4', b:[], c:['Sistemas Administrativos'] },
+      { cod:'2.1.4.16', nombre:'PP1: Diseño y Administración de Base de Datos', video:'videos/pp1.mp4', b:[], c:['Arquitectura y Sistemas Operativos'] },
+      { cod:'2.1.3.17', nombre:'Técnicas de Almacenamiento de Datos', video:'videos/tecnicas-de-almacenamiento-de-datos.mp4', b:['Estructura de Datos'], c:['Estructura de Datos','Taller de Computación 2'] },
+      { cod:'2.1.3.18', nombre:'Programación Orientada a Objetos', video:'videos/programacion-orientada-a-objetos.mp4', b:['Estructura de Datos'], c:['Estructura de Datos','Taller de Computación 2'] },
+      { cod:'2.1.3.19', nombre:'Taller de Computación 3', video:'videos/taller-de-computacion-3.mp4', b:['Taller de Computación 2'], c:['Taller de Computación 2'] },
+      { cod:'2.1.1.20', nombre:'Ética y Deontología Profesional', video:'videos/etica-y-deontologia-profesional.mp4', b:[], c:[] },
+      { cod:'2.2.3.21', nombre:'Análisis y Metodología de Sistemas', video:'videos/analisis-y-metodologia-de-sistemas.mp4', b:[], c:['Modelos Estratégicos de Negocios'] },
+      { cod:'2.2.3.22', nombre:'Redes de Comunicación Informática', video:'videos/redes-de-comunicacion-informatica.mp4', b:[], c:['Arquitectura y Sistemas Operativos'] },
+      { cod:'2.2.4.23', nombre:'PP2: Integración de Programación', video:'videos/pp2.mp4', b:['Técnicas de Almacenamiento de Datos','Programación Orientada a Objetos'], c:['Técnicas de Almacenamiento de Datos','Programación Orientada a Objetos'] },
+      { cod:'2.2.3.24', nombre:'Taller de Computación 4', video:'videos/taller-de-computacion-4.mp4', b:['Taller de Computación 3'], c:['Taller de Computación 3'] },
+      { cod:'2.2.2.25', nombre:'Simulación de Procesos', video:'videos/simulacion-de-procesos.mp4', b:[], c:['Taller de Computación 3'] },
+      { cod:'2.2.1.26', nombre:'DI: Presentaciones Efectivas', video:'videos/di.mp4', b:[], c:['Estadística'] },
     ],
   },
-  ae: {}
+  ae: {
+    1: [
+      { cod:'1.1.2.1', nombre:'Introducción a la Economía', video:'videos/introduccion-a-la-economia.mp4', b:[], c:[] },
+      { cod:'1.1.3.2', nombre:'Historia Económica, Política y Social', video:'videos/historia-economica-politica-y-social.mp4', b:[], c:[] },
+      { cod:'1.1.2.3', nombre:'Relaciones Humanas', video:'videos/relaciones-humanas.mp4', b:[], c:[] },
+      { cod:'1.1.3.4', nombre:'Administración General', video:'videos/administracion-general.mp4', b:[], c:[] },
+      { cod:'1.1.3.5', nombre:'Estructura de las Organizaciones', video:'videos/estructura-de-las-organizaciones.mp4', b:[], c:[] },
+      { cod:'1.1.1.6', nombre:'Informática', video:'videos/informatica.mp4', b:[], c:[] },
+      { cod:'1.2.3.7', nombre:'Estados Contables', video:'videos/estados-contables.mp4', b:[], c:['Administración General'] },
+      { cod:'1.2.2.8', nombre:'Derecho Civil y Comercial', video:'videos/derecho-civil-y-comercial.mp4', b:[], c:[] },
+      { cod:'1.2.2.9', nombre:'Matemática', video:'videos/matematica.mp4', b:[], c:[] },
+      { cod:'1.2.3.10', nombre:'Comunicaciones Empresariales', video:'videos/comunicaciones-empresariales.mp4', b:[], c:['Relaciones Humanas'] },
+      { cod:'1.2.3.11', nombre:'Planeamiento Estratégico', video:'videos/planeamiento-estrategico.mp4', b:[], c:['Administración General','Estructura de las Organizaciones'] },
+      { cod:'1.2.3.12', nombre:'Administración de Personal', video:'videos/administracion-de-personal.mp4', b:[], c:[] },
+    ],
+    2: [
+      { cod:'2.1.2.15', nombre:'Costos', video:'videos/costos.mp4', b:['Introducción a la Economía','Historia Económica, Política y Social','Relaciones Humanas','Administración General','Comunicaciones Empresariales','Informática'], c:['Matemática','Estados Contables'] },
+      { cod:'2.1.3.16', nombre:'Dirección de Proyectos Empresariales', video:'videos/direccion-de-proyectos-empresariales.mp4', b:['Introducción a la Economía','Historia Económica, Política y Social','Relaciones Humanas','Administración General','Comunicaciones Empresariales','Informática'], c:['Administración General'] },
+      { cod:'2.1.1.14', nombre:'Liderazgo y Conducción', video:'videos/liderazgo-y-conduccion.mp4', b:['Introducción a la Economía','Historia Económica, Política y Social','Relaciones Humanas','Administración General','Comunicaciones Empresariales','Informática'], c:['Relaciones Humanas'] },
+      { cod:'2.2.3.18', nombre:'Ética Profesional', video:'videos/etica-profesional.mp4', b:[], c:[] },
+      { cod:'2.2.3.19', nombre:'Administración Financiera', video:'videos/administracion-financiera.mp4', b:[], c:['Costos'] },
+      { cod:'2.2.3.20', nombre:'Administración Tributaria', video:'videos/administracion-tributaria.mp4', b:[], c:['Costos','Estados Contables'] },
+      { cod:'2.1.4.13', nombre:'Práctica Profesional I: Diseño de un Proyecto para Gestión del Cambio', video:'videos/practica-profesional-i.mp4',
+        b:['Introducción a la Economía','Historia Económica, Política y Social','Relaciones Humanas','Administración General','Comunicaciones Empresariales','Informática'],
+        c:['Introducción a la Economía','Historia Económica, Política y Social','Relaciones Humanas','Administración General','Comunicaciones Empresariales','Informática','Dirección de Proyectos Empresariales (cursada aprobada)','Liderazgo y Conducción (cursada aprobada)'] },
+      { cod:'2.1.4.17', nombre:'Práctica Profesional II: Método de Casos', video:'videos/practica-profesional-ii.mp4', b:['Introducción a la Economía','Historia Económica, Política y Social','Relaciones Humanas','Administración General','Comunicaciones Empresariales','Informática'], c:['Práctica Profesional I: Diseño de un Proyecto para Gestión del Cambio'] },
+      { cod:'2.2.4.21', nombre:'Práctica Profesional III: Proyecto Final Integrador', video:'videos/practica-profesional-iii.mp4', b:[], c:['Estados Contables','Derecho Civil y Comercial','Matemática','Estructura de las Organizaciones','Planeamiento Estratégico','Administración de Personal','Práctica Profesional I: Diseño de un Proyecto para Gestión del Cambio','Liderazgo y Conducción','Costos','Dirección de Proyectos Empresariales','Práctica Profesional II: Método de Casos','Ética Profesional','Administración Financiera','Administración Tributaria'] },
+    ],
+  }
 };
 
 /* ================= PLAN DE ESTUDIOS (por año y cuatrimestre) ================= */
@@ -899,13 +995,11 @@ function toggleTemasSection() {
   document.getElementById('temasChevron').textContent = abierto ? '▴' : '▾';
 }
 async function guardarTema() {
-  try { await window.storage.set('iide-tema', temaActual, false); } catch(e) {}
+  await storageSet('iide-tema', temaActual);
 }
 async function cargarTema() {
-  try {
-    const r = await window.storage.get('iide-tema', false);
-    if (r && r.value) aplicarTema(r.value);
-  } catch(e) {}
+  const valor = await storageGet('iide-tema');
+  if (valor) aplicarTema(valor);
 }
 
 /* ================= TAMAÑO DE LETRA (accesibilidad) ================= */
@@ -917,16 +1011,18 @@ function setFontSize(scale) {
     b.classList.toggle('active', Number(b.dataset.scale) === scale);
   });
   guardarTamanoLetra();
+  // si el modal de editar está abierto, lo reacomoda para que no quede afuera
+  if (typeof clamparModalEdicion === 'function' && document.getElementById('editOverlay') && document.getElementById('editOverlay').classList.contains('show')) {
+    requestAnimationFrame(() => clamparModalEdicion());
+  }
 }
 async function guardarTamanoLetra() {
-  try { await window.storage.set('iide-fontsize', String(tamanoLetra), false); } catch(e) {}
+  await storageSet('iide-fontsize', String(tamanoLetra));
 }
 async function cargarTamanoLetra() {
-  try {
-    const r = await window.storage.get('iide-fontsize', false);
-    if (r && r.value) setFontSize(Number(r.value));
-    else setFontSize(100);
-  } catch(e) { setFontSize(100); }
+  const valor = await storageGet('iide-fontsize');
+  if (valor) setFontSize(Number(valor));
+  else setFontSize(100);
 }
 
 /* ================= GESTIÓN: editar profesores/aulas en un solo lugar ================= */
@@ -1017,7 +1113,11 @@ function renderManageList() {
 }
 
 /* ================= RÉGIMEN DE CORRELATIVIDADES ================= */
+let correlCarreraSeleccionada = null;
+
 function openCorrelModal() {
+  correlCarreraSeleccionada = carreraActual; // arranca mostrando la carrera activa
+  renderCorrelTabs();
   renderCorrelList();
   document.getElementById('correlOverlay').classList.add('show');
 }
@@ -1025,15 +1125,55 @@ function closeCorrelModal() {
   document.getElementById('correlOverlay').classList.remove('show');
 }
 
+/* ================= VIDEOS: se abren, reproducen, y se cierran solos al terminar ================= */
+function abrirVideo(src) {
+  const overlay = document.getElementById('videoOverlay');
+  const player = document.getElementById('videoPlayer');
+  player.src = src;
+  overlay.classList.add('show');
+  player.currentTime = 0;
+  player.play();
+  player.onended = () => cerrarVideo();
+}
+function cerrarVideo() {
+  const overlay = document.getElementById('videoOverlay');
+  const player = document.getElementById('videoPlayer');
+  player.pause();
+  overlay.classList.remove('show');
+}
+
+function renderCorrelTabs() {
+  const wrap = document.getElementById('correlCareerTabs');
+  wrap.innerHTML = '';
+  Object.keys(CORRELATIVIDADES).forEach(codCarrera => {
+    const nombreCarrera = CARRERAS[codCarrera] ? CARRERAS[codCarrera].nombre : codCarrera;
+    const btn = document.createElement('button');
+    btn.className = (codCarrera === correlCarreraSeleccionada) ? 'active' : '';
+    btn.textContent = nombreCarrera;
+    btn.onclick = () => { correlCarreraSeleccionada = codCarrera; renderCorrelTabs(); renderCorrelList(); };
+    wrap.appendChild(btn);
+  });
+}
+
 function renderCorrelList() {
   const wrap = document.getElementById('correlList');
   wrap.innerHTML = '';
-  const datos = CORRELATIVIDADES[carreraActual];
+
+  const codCarrera = correlCarreraSeleccionada;
+  const datos = CORRELATIVIDADES[codCarrera];
+  const nombreCarrera = CARRERAS[codCarrera] ? CARRERAS[codCarrera].nombre : codCarrera;
+
+  const careerLabel = document.createElement('div');
+  careerLabel.className = 'plan-career-label';
+  careerLabel.innerHTML = `📚 Carrera: ${nombreCarrera}`;
+  wrap.appendChild(careerLabel);
 
   if (!datos || Object.keys(datos).length === 0) {
-    wrap.innerHTML = `<div class="mm-sub" style="text-align:center;padding:20px 8px">
-      Todavía no está cargado el régimen de correlatividades de ${C().nombre}.
-    </div>`;
+    const vacio = document.createElement('div');
+    vacio.className = 'mm-sub';
+    vacio.style.cssText = 'text-align:center;padding:16px 8px';
+    vacio.textContent = `Todavía no está cargado el régimen de correlatividades de ${nombreCarrera}.`;
+    wrap.appendChild(vacio);
     return;
   }
 
@@ -1047,7 +1187,10 @@ function renderCorrelList() {
       const card = document.createElement('div');
       card.className = 'correl-card';
 
-      let html = `<div class="cc-nombre">${m.nombre}</div>`;
+      const botonVideo = m.video
+        ? `<button class="ver-video-btn" onclick="abrirVideo('${m.video}')">Ver video<span class="vv-play"></span></button>`
+        : '';
+      let html = `<div class="cc-nombre-row"><div class="cc-nombre">${m.nombre}</div>${botonVideo}</div>`;
 
       // b) para CURSAR
       if (m.b.length === 0) {
@@ -1224,13 +1367,11 @@ function obtenerBloquesEfectivos(anio, dia) {
 /* ================= OVERRIDES (ediciones guardadas) ================= */
 let overrides = {};
 async function cargarOverrides() {
-  try {
-    const r = await window.storage.get('iide-overrides', false);
-    if (r && r.value) overrides = JSON.parse(r.value);
-  } catch(e) { overrides = {}; }
+  const valor = await storageGet('iide-overrides');
+  try { overrides = valor ? JSON.parse(valor) : {}; } catch(e) { overrides = {}; }
 }
 async function guardarOverrides() {
-  try { await window.storage.set('iide-overrides', JSON.stringify(overrides), false); } catch(e) {}
+  await storageSet('iide-overrides', JSON.stringify(overrides));
 }
 
 /* ================= FERIADOS NACIONALES (Argentina, Ley 27.399 + Res. 164/2025) ================= */
@@ -1476,34 +1617,37 @@ function openEdit(anio, dia, bloque, cellEl) {
   document.getElementById('emProf').value = bloque.prof;
   document.getElementById('emAula').value = bloque.aula;
 
+  // Arranca centrado, pero se puede arrastrar libremente desde la manija de
+  // arriba -- siempre queda atrapado adentro de la pantalla, no importa el
+  // tamaño de letra ni si lo movés a una esquina.
+  document.getElementById('editOverlay').classList.add('show');
+  centrarModalEdicion();
+}
+function centrarModalEdicion() {
   const modal = document.getElementById('editModal');
-  const overlay = document.getElementById('editOverlay');
-  overlay.classList.add('show');
-
-  // Posicionar el popover justo debajo (o arriba, si no entra) de la celda tocada,
-  // con la flechita apuntando hacia ella.
-  const rect = cellEl.getBoundingClientRect();
-  const modalWidth = 260;
-  const margin = 16;
-  let left = rect.left + rect.width/2 - modalWidth/2;
-  left = Math.max(margin, Math.min(left, window.innerWidth - modalWidth - margin));
-
-  const espacioAbajo = window.innerHeight - rect.bottom;
-  const abreAbajo = espacioAbajo > 260;
-
-  modal.classList.toggle('arrow-top', abreAbajo);
-  modal.classList.toggle('arrow-bottom', !abreAbajo);
-  modal.style.left = left + 'px';
-  if (abreAbajo) {
-    modal.style.top = (rect.bottom + 10) + 'px';
-    modal.style.bottom = 'auto';
-  } else {
-    modal.style.top = 'auto';
-    modal.style.bottom = (window.innerHeight - rect.top + 10) + 'px';
+  modal.style.left = '50%';
+  modal.style.top = '50%';
+  modal.style.transform = 'translate(-50%, -50%)';
+  // fuerza el clamp inicial por si el modal, ya centrado, se pasa del borde con letra muy grande
+  requestAnimationFrame(() => clamparModalEdicion());
+}
+function clamparModalEdicion() {
+  const modal = document.getElementById('editModal');
+  if (!document.getElementById('editOverlay').classList.contains('show')) return;
+  const margin = 12;
+  const rect = modal.getBoundingClientRect();
+  // Si todavía tiene el transform de centrado, lo convertimos a left/top fijos antes de limitar
+  if (modal.style.transform && modal.style.transform.includes('translate')) {
+    modal.style.left = rect.left + 'px';
+    modal.style.top = rect.top + 'px';
+    modal.style.transform = 'none';
   }
-  // la flecha apunta al centro de la celda, no al centro del popover
-  const arrowLeft = Math.max(14, Math.min(rect.left + rect.width/2 - left - 6.5, modalWidth - 26));
-  document.documentElement.style.setProperty('--edit-arrow-left', arrowLeft + 'px');
+  const maxLeft = window.innerWidth - rect.width - margin;
+  const maxTop = window.innerHeight - rect.height - margin;
+  const left = Math.min(Math.max(margin, parseFloat(modal.style.left)), Math.max(margin, maxLeft));
+  const top = Math.min(Math.max(margin, parseFloat(modal.style.top)), Math.max(margin, maxTop));
+  modal.style.left = left + 'px';
+  modal.style.top = top + 'px';
 }
 function closeEdit() { document.getElementById('editOverlay').classList.remove('show'); editContext = null; }
 document.addEventListener('click', (e) => {
@@ -1528,6 +1672,53 @@ async function saveEdit() {
   closeEdit();
   renderSheet();
 }
+
+/* ================= ARRASTRAR EL MODAL DE EDICIÓN, SIEMPRE ADENTRO DE LA PANTALLA ================= */
+(function initArrastreModalEdicion() {
+  const modal = document.getElementById('editModal');
+  const manija = document.getElementById('emDrag');
+  if (!modal || !manija) return;
+
+  let arrastrando = false;
+  let offsetX = 0, offsetY = 0;
+
+  // Pointer Events: un solo sistema que junta touch y mouse en uno, sin
+  // que se disparen los dos a la vez para el mismo toque (eso era lo que
+  // hacía que el modal "saltara" para cualquier lado).
+  manija.addEventListener('pointerdown', (e) => {
+    manija.setPointerCapture(e.pointerId);
+    const rect = modal.getBoundingClientRect();
+    modal.style.left = rect.left + 'px';
+    modal.style.top = rect.top + 'px';
+    modal.style.transform = 'none';
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    arrastrando = true;
+    e.preventDefault();
+  });
+
+  manija.addEventListener('pointermove', (e) => {
+    if (!arrastrando) return;
+    modal.style.left = (e.clientX - offsetX) + 'px';
+    modal.style.top = (e.clientY - offsetY) + 'px';
+    clamparModalEdicion();
+  });
+
+  function soltar(e) {
+    if (!arrastrando) return;
+    arrastrando = false;
+    try { manija.releasePointerCapture(e.pointerId); } catch(err) {}
+  }
+  manija.addEventListener('pointerup', soltar);
+  manija.addEventListener('pointercancel', soltar);
+
+  // Si cambia el tamaño de letra o gira la pantalla mientras el modal está
+  // abierto, lo volvemos a encerrar adentro de los límites de la pantalla.
+  window.addEventListener('resize', () => {
+    if (document.getElementById('editOverlay').classList.contains('show')) clamparModalEdicion();
+  });
+})();
+
 
 function tickClock() {
   const d = new Date();
