@@ -299,6 +299,38 @@
   }
   .em-save { background:var(--accent); color:var(--bg); }
   .em-cancel { background:transparent; border:1px solid rgba(255,255,255,.2) !important; color:var(--text); }
+  .em-clear-btn {
+    width:100%; margin-top:8px; padding:9px; border-radius:8px;
+    border:1px dashed rgba(255,107,107,.4); background:transparent; color:#FF9F9F;
+    font-size:11px; font-weight:700; cursor:pointer;
+  }
+
+  /* ------- modal "agregar materia" (más simple, centrado, sin arrastre) ------- */
+  #addOverlay {
+    position:fixed; inset:0; background:rgba(0,0,0,.55); display:none;
+    align-items:center; justify-content:center; z-index:500; padding:24px;
+  }
+  #addOverlay.show { display:flex; }
+  #addModal {
+    position:relative; background:var(--panel2); width:100%; max-width:320px;
+    max-height:calc(100vh - 48px); overflow-y:auto;
+    border-radius:16px; padding:18px 16px; border:1px solid rgba(255,201,110,.35);
+    box-shadow:0 12px 32px rgba(0,0,0,.5); animation: popIn .18s ease;
+  }
+  #addModal h3 { font-family:var(--font-display); font-size:13px; color:var(--accent); margin-bottom:2px; }
+  #addModal .mm-sub { font-size:10px; opacity:.6; margin-bottom:12px; }
+  #addModal label { font-size:10px; opacity:.7; display:block; margin-bottom:4px; }
+  #addModal input, #addModal select {
+    width:100%; padding:9px 10px; border-radius:8px; border:1px solid rgba(255,201,110,.3);
+    background:var(--bg); color:var(--text); font-size:12.5px; margin-bottom:10px; font-family:'Inter',sans-serif;
+  }
+  #addModal input:focus, #addModal select:focus { outline:none; border-color:var(--accent); }
+
+  .manage-add-btn {
+    width:100%; margin-top:6px; padding:10px; border-radius:10px;
+    border:1px dashed rgba(255,201,110,.4); background:transparent; color:var(--accent);
+    font-size:11.5px; font-weight:700; cursor:pointer;
+  }
 
   /* ------- modal de pantalla completa / rotado ------- */
   #rotateOverlay {
@@ -514,6 +546,30 @@
     border-left:8px solid var(--accent);
   }
 
+  /* ------- visor de foto del horario original (zoom, rotar, salir) ------- */
+  #fotoOverlay {
+    position:fixed; inset:0; background:#000; display:none; flex-direction:column; z-index:950;
+  }
+  #fotoOverlay.show { display:flex; }
+  #fotoOverlay .foto-top {
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding:10px 12px; background:rgba(20,8,14,.95); border-bottom:1px solid rgba(255,201,110,.25); flex-shrink:0;
+  }
+  #fotoOverlay .foto-titulo { font-size:11.5px; font-weight:700; color:var(--accent); min-width:0; }
+  #fotoOverlay .foto-titulo small { display:block; font-size:9px; opacity:.6; color:#fff; font-weight:500; margin-top:1px; }
+  #fotoOverlay .foto-actions { display:flex; gap:6px; flex-shrink:0; }
+  #fotoOverlay .foto-actions button {
+    min-width:38px; height:38px; border-radius:10px; border:1px solid rgba(255,201,110,.35);
+    background:#3a1729; color:var(--accent); font-size:17px; font-weight:800; cursor:pointer;
+  }
+  #fotoOverlay .foto-actions button.foto-cerrar { background:var(--accent); color:#2b0f1f; }
+  #fotoStage {
+    flex:1; display:flex; align-items:center; justify-content:center;
+    overflow:hidden; touch-action:none; user-select:none; -webkit-user-select:none;
+  }
+  #fotoImg { max-width:100%; max-height:100%; transform-origin:center center; pointer-events:none; -webkit-user-drag:none; }
+  #fotoOverlay .foto-hint { text-align:center; font-size:10px; color:#fff; opacity:.55; padding:6px 0 10px; flex-shrink:0; }
+
   /* ------- reproductor de video: se abre, reproduce, y se cierra solo al terminar ------- */
   #videoOverlay {
     position:fixed; inset:0; background:rgba(0,0,0,.9); display:none;
@@ -624,6 +680,10 @@
       <span class="sl-icon">🔗</span>
       <div class="tx"><b>Régimen de Correlatividades</b><small>Qué necesitás aprobado para cursar y rendir</small></div>
     </button>
+    <button class="link-btn" onclick="event.stopPropagation(); toggleCareerMenu(); abrirFoto();">
+      <span class="sl-icon">📷</span>
+      <div class="tx"><b>Horario original (foto)</b><small>Ver, agrandar y girar la foto del horario</small></div>
+    </button>
   </div>
 
   <div class="day-tabs" id="dayTabs"></div>
@@ -687,6 +747,28 @@
   </div>
 </div>
 
+<div id="addOverlay" onclick="closeAddModal()">
+  <div id="addModal" onclick="event.stopPropagation()">
+    <div class="th-handle"></div>
+    <h3>+ Agregar materia</h3>
+    <div class="mm-sub" id="addSub">Para cuando cambian el horario y aparece una clase nueva</div>
+    <label>Año</label>
+    <select id="addAnio"></select>
+    <label>Horario libre</label>
+    <select id="addHorario"></select>
+    <label>Nombre de la materia</label>
+    <input id="addMateria" type="text" placeholder="Nombre de la materia">
+    <label>Profesor/a</label>
+    <input id="addProf" type="text" placeholder="Nombre del profesor/a">
+    <label>Aula</label>
+    <input id="addAula" type="text" placeholder="Aula o laboratorio">
+    <div class="em-actions">
+      <button class="em-cancel" onclick="closeAddModal()">Cancelar</button>
+      <button class="em-save" onclick="saveAdd()">Agregar</button>
+    </div>
+  </div>
+</div>
+
 <div id="correlOverlay" onclick="closeCorrelModal()">
   <div id="correlModal" onclick="event.stopPropagation()">
     <div class="th-handle"></div>
@@ -700,6 +782,20 @@
 <div id="videoOverlay">
   <button class="video-close" onclick="cerrarVideo()">✕</button>
   <video id="videoPlayer" playsinline controls></video>
+</div>
+
+<div id="fotoOverlay">
+  <div class="foto-top">
+    <div class="foto-titulo"><span id="fotoTitulo"></span><small>Foto original del horario</small></div>
+    <div class="foto-actions">
+      <button onclick="fotoZoom(-0.5)" aria-label="Achicar">−</button>
+      <button onclick="fotoZoom(0.5)" aria-label="Agrandar">+</button>
+      <button onclick="fotoRotar()" aria-label="Girar">⟳</button>
+      <button class="foto-cerrar" onclick="cerrarFoto()" aria-label="Salir">✕</button>
+    </div>
+  </div>
+  <div id="fotoStage"><img id="fotoImg" alt="Horario original"></div>
+  <div class="foto-hint">Pellizcá para agrandar · Arrastrá para mover · Doble toque para zoom</div>
 </div>
 
 <div id="planOverlay" onclick="closePlanModal()">
@@ -735,6 +831,7 @@
       <button class="em-cancel" onclick="closeEdit()">Cancelar</button>
       <button class="em-save" onclick="saveEdit()">Guardar</button>
     </div>
+    <button class="em-clear-btn" onclick="vaciarHorario()">🗑️ Vaciar este horario (dejar libre)</button>
   </div>
 </div>
 
@@ -758,24 +855,24 @@ const CARRERAS = {
     raw: {
       1: {
         lunes:     [{m:'Inglés 2', p:'Adrogué', a:'Aula P1'},{m:'Inglés 2', p:'Adrogué', a:'Aula P1'},{m:'T. de Comp. 2', p:'Triantafilu', a:'SUM'},{m:'T. de Comp. 2', p:'Triantafilu', a:'SUM'},{m:'T. de Comp. 2', p:'Triantafilu', a:'SUM'}],
-        martes:    [{m:'Com. Efect.', p:'Larrea', a:'Aula P1'},{m:'Com. Efect.', p:'Larrea', a:'Aula P1'},{m:'Sist. Adm.', p:'Barzabal', a:'Aula 2/3'},{m:'Sist. Adm.', p:'Barzabal', a:'Aula 2/3'},{m:'Sist. Adm.', p:'Barzabal', a:'Aula 2/3'}],
-        miercoles: [{m:'Estadística', p:'Montero', a:'Aula P1'},{m:'Estadística', p:'Montero', a:'Aula P1'},{m:'T. de Comp. 2', p:'Triantafilu', a:'SUM'},{m:'T. de Comp. 2', p:'Triantafilu', a:'SUM'},{m:'T. de Comp. 2', p:'Triantafilu', a:'SUM'}],
-        jueves:    [{m:'Estruc. Datos', p:'Branda', a:'Laboratorio'},{m:'Estruc. Datos', p:'Branda', a:'Laboratorio'},{m:'Estruc. Datos', p:'Branda', a:'Laboratorio'},{m:'Estruc. Datos', p:'Branda', a:'Laboratorio'}, null],
-        viernes:   [{m:'Estruc. Datos', p:'Branda', a:'A confirmar'},{m:'Estruc. Datos', p:'Branda', a:'A confirmar'},{m:'Arq. y Sist. Op.', p:'A confirmar', a:'A confirmar'},{m:'Arq. y Sist. Op.', p:'A confirmar', a:'A confirmar'},{m:'Arq. y Sist. Op.', p:'A confirmar', a:'A confirmar'}],
+        martes:    [{m:'Com. Efect.', p:'Catoni', a:'Aula P1/2'},{m:'Com. Efect.', p:'Catoni', a:'Aula P1/2'},{m:'Sist. Adm.', p:'Barzabal', a:'Aula P1/2'},{m:'Sist. Adm.', p:'Barzabal', a:'Aula P1/2'},{m:'Sist. Adm.', p:'Barzabal', a:'Aula P1/2'}],
+        miercoles: [{m:'Estadística', p:'Montero', a:'Aula P1/2'},{m:'Estadística', p:'Montero', a:'Aula P1/2'},{m:'T. de Comp. 2', p:'Triantafilu', a:'SUM'},{m:'T. de Comp. 2', p:'Triantafilu', a:'SUM'},{m:'T. de Comp. 2', p:'Triantafilu', a:'SUM'}],
+        jueves:    [{m:'Estruc. Datos', p:'Branda', a:'Aula 2/3'},{m:'Arq. y Sist. Op.', p:'Catoni', a:'Aula 2/3'},{m:'Arq. y Sist. Op.', p:'Catoni', a:'Aula 2/3'},{m:'Arq. y Sist. Op.', p:'Catoni', a:'Aula 2/3'}, null],
+        viernes:   [{m:'Estruc. Datos', p:'Branda', a:'SUM'},{m:'Estruc. Datos', p:'Branda', a:'SUM'},{m:'Estruc. Datos', p:'Branda', a:'SUM'},{m:'Estruc. Datos', p:'Branda', a:'SUM'},{m:'Estruc. Datos', p:'Branda', a:'SUM'}],
       },
       2: {
-        lunes:     [{m:'An. y Me. Sist.', p:'A confirmar', a:'A confirmar'},{m:'An. y Me. Sist.', p:'A confirmar', a:'A confirmar'},{m:'An. y Me. Sist.', p:'A confirmar', a:'A confirmar'},{m:'Redes', p:'Torres', a:'Aula 2/3'},{m:'Redes', p:'Torres', a:'Aula 2/3'}],
+        lunes:     [{m:'An. y Me. Sist.', p:'Catoni', a:'Aula 2/3'},{m:'An. y Me. Sist.', p:'Catoni', a:'Aula 2/3'},{m:'An. y Me. Sist.', p:'Catoni', a:'Aula 2/3'},{m:'Redes', p:'Torres', a:'Aula 2/3'},{m:'Redes', p:'Torres', a:'Aula 2/3'}],
         martes:    [{m:'Integ. Prog.', p:'Jucys', a:'SUM'},{m:'Integ. Prog.', p:'Jucys', a:'SUM'},{m:'T. de Comp. 4', p:'Jucys', a:'SUM'},{m:'T. de Comp. 4', p:'Jucys', a:'SUM'},{m:'T. de Comp. 4', p:'Jucys', a:'SUM'}],
-        miercoles: [{m:'An. y Me. Sist.', p:'A confirmar', a:'A confirmar'},{m:'An. y Me. Sist.', p:'A confirmar', a:'A confirmar'},{m:'An. y Me. Sist.', p:'A confirmar', a:'A confirmar'},{m:'Redes', p:'Torres', a:'A confirmar'},{m:'Redes', p:'Torres', a:'A confirmar'}],
+        miercoles: [{m:'An. y Me. Sist.', p:'Catoni', a:'Aula 2/3'},{m:'An. y Me. Sist.', p:'Catoni', a:'Aula 2/3'},{m:'An. y Me. Sist.', p:'Catoni', a:'Aula 2/3'},{m:'Redes', p:'Torres', a:'Aula 2/3'},{m:'Redes', p:'Torres', a:'Aula 2/3'}],
         jueves:    [{m:'Integ. Prog.', p:'Jucys', a:'SUM'},{m:'Integ. Prog.', p:'Jucys', a:'SUM'},{m:'T. de Comp. 4', p:'Jucys', a:'SUM'},{m:'T. de Comp. 4', p:'Jucys', a:'SUM'},{m:'T. de Comp. 4', p:'Jucys', a:'SUM'}],
-        viernes:   [{m:'Sim. Proc.', p:'Puente', a:'Aula 2/3'},{m:'Sim. Proc.', p:'Puente', a:'Aula 2/3'},{m:'Pres. Efect.', p:'Lucena', a:'Aula P1'},{m:'Pres. Efect.', p:'Lucena', a:'Aula P1'}, null],
+        viernes:   [{m:'Sim. Proc.', p:'Puente', a:'Aula 2/3'},{m:'Sim. Proc.', p:'Puente', a:'Aula 2/3'},{m:'Pres. Efect.', p:'Lucena', a:'Aula 2/3'},{m:'Pres. Efect.', p:'Lucena', a:'Aula 2/3'}, null],
       },
       3: {
-        lunes:     [{m:'Int. de Tecn.', p:'Torres', a:'Aula 2/3'},{m:'Int. de Tecn.', p:'Torres', a:'Aula 2/3'},{m:'T. de Comp. 6', p:'Porfirio', a:'Laboratorio'},{m:'T. de Comp. 6', p:'Porfirio', a:'Laboratorio'},{m:'T. de Comp. 6', p:'Porfirio', a:'Laboratorio'}],
+        lunes:     [{m:'Int. de Tecn.', p:'Torres', a:'Laboratorio'},{m:'Int. de Tecn.', p:'Torres', a:'Laboratorio'},{m:'T. de Comp. 6', p:'Porfirio', a:'Laboratorio'},{m:'T. de Comp. 6', p:'Porfirio', a:'Laboratorio'},{m:'T. de Comp. 6', p:'Porfirio', a:'Laboratorio'}],
         martes:    [{m:'Integ. de Sist.', p:'Branda', a:'Laboratorio'},{m:'Integ. de Sist.', p:'Branda', a:'Laboratorio'},{m:'T. de Comp. 6', p:'Porfirio', a:'Laboratorio'},{m:'T. de Comp. 6', p:'Porfirio', a:'Laboratorio'},{m:'T. de Comp. 6', p:'Porfirio', a:'Laboratorio'}],
-        miercoles: [{m:'Int. de Tecn.', p:'Torres', a:'Laboratorio'},{m:'Int. de Tecn.', p:'Torres', a:'Laboratorio'},{m:'Seg. Int. Sist.', p:'Torres', a:'Laboratorio'},{m:'Integ. de Sist.', p:'Branda', a:'Laboratorio'},{m:'Integ. de Sist.', p:'Branda', a:'Laboratorio'}],
-        jueves:    [{m:'Comp. Avanz.', p:'Fernández', a:'Aula 2/3'},{m:'Comp. Avanz.', p:'Fernández', a:'Aula 2/3'},{m:'Comp. Avanz.', p:'Fernández', a:'Aula 2/3'},{m:'Comp. Avanz.', p:'Fernández', a:'Aula 2/3'}, null],
-        viernes:   [{m:'Seg. Int. Sist.', p:'Torres', a:'A confirmar'},{m:'Seg. Int. Sist.', p:'Torres', a:'A confirmar'},{m:'Seg. Int. Sist.', p:'Torres', a:'A confirmar'},{m:'Integ. de Sist.', p:'Branda', a:'A confirmar'},{m:'Integ. de Sist.', p:'Branda', a:'A confirmar'}],
+        miercoles: [{m:'Int. de Tecn.', p:'Torres', a:'Laboratorio'},{m:'Int. de Tecn.', p:'Torres', a:'Laboratorio'},{m:'Seg. Int. Sist.', p:'Torres', a:'Laboratorio'},{m:'Comp. Avanz.', p:'Fernández, M', a:'Laboratorio'},{m:'Comp. Avanz.', p:'Fernández, M', a:'Laboratorio'}],
+        jueves:    [null, {m:'Integ. de Sist.', p:'Branda', a:'Laboratorio'},{m:'Integ. de Sist.', p:'Branda', a:'Laboratorio'},{m:'Integ. de Sist.', p:'Branda', a:'Laboratorio'},{m:'Integ. de Sist.', p:'Branda', a:'Laboratorio'}],
+        viernes:   [{m:'Seg. Int. Sist.', p:'Torres', a:'Laboratorio'},{m:'Seg. Int. Sist.', p:'Torres', a:'Laboratorio'},{m:'Seg. Int. Sist.', p:'Torres', a:'Laboratorio'},{m:'Comp. Avanz.', p:'Fernández, M', a:'Laboratorio'},{m:'Comp. Avanz.', p:'Fernández, M', a:'Laboratorio'}],
       }
     }
   },
@@ -794,18 +891,18 @@ const CARRERAS = {
     ],
     raw: {
       1: {
-        lunes:     [{m:'Plan. Estrat.', p:'Fernández, P', a:''},{m:'Plan. Estrat.', p:'Fernández, P', a:''},{m:'Plan. Estrat.', p:'Fernández, P', a:''},{m:'Com. Empres.', p:'Gleizer', a:''},{m:'Com. Empres.', p:'Gleizer', a:''},{m:'Com. Empres.', p:'Gleizer', a:''},{m:'Com. Empres.', p:'Gleizer', a:''}],
-        martes:    [{m:'Estados Cont.', p:'Alvarez', a:''},{m:'Estados Cont.', p:'Alvarez', a:''},{m:'Estados Cont.', p:'Alvarez', a:''},{m:'Matemática', p:'Montero', a:''},{m:'Matemática', p:'Montero', a:''},{m:'Com. Empres.', p:'Gleizer', a:''},{m:'Com. Empres.', p:'Gleizer', a:''}],
-        miercoles: [{m:'Der. Civ. Com.', p:'Juarez', a:''},{m:'Der. Civ. Com.', p:'Juarez', a:''},{m:'Der. Civ. Com.', p:'Juarez', a:''},{m:'Der. Civ. Com.', p:'Juarez', a:''},{m:'Matemática', p:'Montero', a:''},{m:'Matemática', p:'Montero', a:''},{m:'Matemática', p:'Montero', a:''}],
-        jueves:    [{m:'Der. Civ. Com.', p:'Juarez', a:''},{m:'Der. Civ. Com.', p:'Juarez', a:''},{m:'Adm. Perso.', p:'Peralta', a:''},{m:'Adm. Perso.', p:'Peralta', a:''},{m:'Plan. Estrat.', p:'Fernández, P', a:''},{m:'Plan. Estrat.', p:'Fernández, P', a:''},{m:'Plan. Estrat.', p:'Fernández, P', a:''}],
-        viernes:   [{m:'Estados Cont.', p:'Alvarez', a:''},{m:'Estados Cont.', p:'Alvarez', a:''},{m:'Estados Cont.', p:'Alvarez', a:''},{m:'Adm. Perso.', p:'Peralta', a:''},{m:'Adm. Perso.', p:'Peralta', a:''},{m:'Adm. Perso.', p:'Peralta', a:''},{m:'Adm. Perso.', p:'Peralta', a:''}],
+        lunes:     [{m:'Plan. Estrat.', p:'Fernández, P', a:'Aula PB2'},{m:'Plan. Estrat.', p:'Fernández, P', a:'Aula PB2'},{m:'Plan. Estrat.', p:'Fernández, P', a:'Aula PB2'},{m:'Com. Empres.', p:'Gleizer', a:'Aula PB2'},{m:'Com. Empres.', p:'Gleizer', a:'Aula PB2'},{m:'Com. Empres.', p:'Gleizer', a:'Aula PB2'},{m:'Com. Empres.', p:'Gleizer', a:'Aula PB2'}],
+        martes:    [{m:'Estados Cont.', p:'Alvarez', a:'Aula PB2'},{m:'Estados Cont.', p:'Alvarez', a:'Aula PB2'},{m:'Estados Cont.', p:'Alvarez', a:'Aula PB2'},{m:'Matemática', p:'Montero', a:'Aula PB2'},{m:'Matemática', p:'Montero', a:'Aula PB2'},{m:'Com. Empres.', p:'Gleizer', a:'Aula PB2'},{m:'Com. Empres.', p:'Gleizer', a:'Aula PB2'}],
+        miercoles: [{m:'Der. Civ. Com.', p:'Juarez', a:'Aula PB2'},{m:'Der. Civ. Com.', p:'Juarez', a:'Aula PB2'},{m:'Der. Civ. Com.', p:'Juarez', a:'Aula PB2'},{m:'Der. Civ. Com.', p:'Juarez', a:'Aula PB2'},{m:'Matemática', p:'Montero', a:'Aula PB2'},{m:'Matemática', p:'Montero', a:'Aula PB2'},{m:'Matemática', p:'Montero', a:'Aula PB2'}],
+        jueves:    [{m:'Der. Civ. Com.', p:'Juarez', a:'Aula PB2'},{m:'Der. Civ. Com.', p:'Juarez', a:'Aula PB2'},{m:'Adm. Perso.', p:'Peralta', a:'Aula PB2'},{m:'Adm. Perso.', p:'Peralta', a:'Aula PB2'},{m:'Plan. Estrat.', p:'Fernández, P', a:'Aula PB2'},{m:'Plan. Estrat.', p:'Fernández, P', a:'Aula PB2'},{m:'Plan. Estrat.', p:'Fernández, P', a:'Aula PB2'}],
+        viernes:   [{m:'Estados Cont.', p:'Alvarez', a:'Aula PB2'},{m:'Estados Cont.', p:'Alvarez', a:'Aula PB2'},{m:'Adm. Perso.', p:'Peralta', a:'Aula PB2'},{m:'Adm. Perso.', p:'Peralta', a:'Aula PB2'},{m:'Adm. Perso.', p:'Peralta', a:'Aula PB2'},{m:'Adm. Perso.', p:'Peralta', a:'Aula PB2'},{m:'Adm. Perso.', p:'Peralta', a:'Aula PB2'}],
       },
       2: {
-        lunes:     [null, {m:'Admin. Tribut.', p:'Benitez', a:''},{m:'Admin. Tribut.', p:'Benitez', a:''},{m:'Admin. Tribut.', p:'Benitez', a:''},{m:'Ética Prof.', p:'Safigueroa', a:''},{m:'Ética Prof.', p:'Safigueroa', a:''}, null],
-        martes:    [null, {m:'Admin. Finan.', p:'Rumacho', a:''},{m:'Admin. Finan.', p:'Rumacho', a:''},{m:'Admin. Finan.', p:'Rumacho', a:''},{m:'Admin. Tribut.', p:'Benitez', a:''},{m:'Admin. Tribut.', p:'Benitez', a:''},{m:'Admin. Tribut.', p:'Benitez', a:''}],
-        miercoles: [null, {m:'Admin. Finan.', p:'Rumacho', a:''},{m:'Admin. Finan.', p:'Rumacho', a:''},{m:'Admin. Finan.', p:'Rumacho', a:''}, null, null, null],
-        jueves:    [null, {m:'Práct. Prof. 3', p:'De la Vega', a:''},{m:'Práct. Prof. 3', p:'De la Vega', a:''},{m:'Práct. Prof. 3', p:'De la Vega', a:''},{m:'Ética Prof.', p:'Safigueroa', a:''},{m:'Ética Prof.', p:'Safigueroa', a:''}, null],
-        viernes:   [null, null, {m:'Práct. Prof. 3', p:'De la Vega', a:''},{m:'Práct. Prof. 3', p:'De la Vega', a:''},{m:'Práct. Prof. 3', p:'De la Vega', a:''}, null, null],
+        lunes:     [null, {m:'Admin. Tribut.', p:'Benitez', a:'Aula PB1'},{m:'Admin. Tribut.', p:'Benitez', a:'Aula PB1'},{m:'Admin. Tribut.', p:'Benitez', a:'Aula PB1'},{m:'Ética Prof.', p:'Safigueroa', a:'Aula PB1'},{m:'Ética Prof.', p:'Safigueroa', a:'Aula PB1'}, null],
+        martes:    [null, {m:'Admin. Finan.', p:'Rumacho', a:'Aula PB1'},{m:'Admin. Finan.', p:'Rumacho', a:'Aula PB1'},{m:'Admin. Finan.', p:'Rumacho', a:'Aula PB1'},{m:'Admin. Tribut.', p:'Benitez', a:'Aula PB1'},{m:'Admin. Tribut.', p:'Benitez', a:'Aula PB1'},{m:'Admin. Tribut.', p:'Benitez', a:'Aula PB1'}],
+        miercoles: [null, {m:'Admin. Finan.', p:'Rumacho', a:'Aula PB1'},{m:'Admin. Finan.', p:'Rumacho', a:'Aula PB1'},{m:'Admin. Finan.', p:'Rumacho', a:'Aula PB1'}, null, null, null],
+        jueves:    [null, {m:'Práct. Prof. 3', p:'Escobar', a:'Aula PB1'},{m:'Práct. Prof. 3', p:'Escobar', a:'Aula PB1'},{m:'Práct. Prof. 3', p:'Escobar', a:'Aula PB1'},{m:'Ética Prof.', p:'Safigueroa', a:'Aula PB1'},{m:'Ética Prof.', p:'Safigueroa', a:'Aula PB1'}, null],
+        viernes:   [null, null, {m:'Práct. Prof. 3', p:'Escobar', a:'Aula PB1'},{m:'Práct. Prof. 3', p:'Escobar', a:'Aula PB1'},{m:'Práct. Prof. 3', p:'Escobar', a:'Aula PB1'}, null, null],
       }
     }
   }
@@ -1047,7 +1144,7 @@ function closeManageModal() {
 // Versión agrupada (para la lista de gestión, con menos filas) que también
 // respeta las materias renombradas o movidas de día.
 function obtenerBloquesAgrupadosEfectivos(anio, dia) {
-  let bloques = agruparDia(C().raw[anio][dia]);
+  let bloques = agruparDia(rawEfectivo(anio, dia));
   bloques.forEach(b => {
     b.materiaOriginal = b.materia;
     b.diaOriginal = dia;
@@ -1062,7 +1159,7 @@ function obtenerBloquesAgrupadosEfectivos(anio, dia) {
 
   DIAS.forEach(otroDia => {
     if (otroDia === dia) return;
-    agruparDia(C().raw[anio][otroDia]).forEach(b => {
+    agruparDia(rawEfectivo(anio, otroDia)).forEach(b => {
       const ov = overrides[carreraActual+'|'+anio+'|'+b.materia];
       if (ov && ov.dia === dia) {
         b.materiaOriginal = b.materia;
@@ -1087,11 +1184,12 @@ function renderManageList() {
         filas.push({
           anio, dia,
           materia: b.materia, materiaOriginal: b.materiaOriginal, diaOriginal: b.diaOriginal,
-          prof: b.prof, aula: b.aula, ini: b.ini, fin: b.fin
+          prof: b.prof, aula: b.aula, ini: b.ini, fin: b.fin,
+          rowStart: b.rowStart, rowEnd: b.rowEnd, esManual: !!b.esManual
         });
       });
     });
-    if (filas.length === 0) return;
+
 
     const group = document.createElement('div');
     group.className = 'manage-day-group';
@@ -1114,10 +1212,17 @@ function renderManageList() {
         const rect = row.getBoundingClientRect();
         closeManageModal();
         // reusa el popover de edición existente, centrado en pantalla ya que no hay una celda visible detrás
-        openEdit(f.anio, f.dia, { materia:f.materia, materiaOriginal:f.materiaOriginal, diaOriginal:f.diaOriginal, prof:f.prof, aula:f.aula, ini:f.ini, fin:f.fin }, { getBoundingClientRect: () => rect });
+        openEdit(f.anio, f.dia, { materia:f.materia, materiaOriginal:f.materiaOriginal, diaOriginal:f.diaOriginal, prof:f.prof, aula:f.aula, ini:f.ini, fin:f.fin, rowStart:f.rowStart, rowEnd:f.rowEnd, esManual:f.esManual }, { getBoundingClientRect: () => rect });
       };
       group.appendChild(row);
     });
+
+    const addBtn = document.createElement('button');
+    addBtn.className = 'manage-add-btn';
+    addBtn.textContent = '+ Agregar materia';
+    addBtn.onclick = () => openAddModal(dia);
+    group.appendChild(addBtn);
+
     wrap.appendChild(group);
   });
 }
@@ -1357,7 +1462,7 @@ function desagruparDia(rawDay) {
 // aplicados: nombre editado, profesor/aula editados, y materias movidas hacia
 // o desde otro día (por si en algún momento cambian una materia de día).
 function obtenerBloquesEfectivos(anio, dia) {
-  let bloques = desagruparDia(C().raw[anio][dia]);
+  let bloques = desagruparDia(rawEfectivo(anio, dia));
   bloques.forEach(b => {
     if (b.esLibre) return;
     b.materiaOriginal = b.materia;
@@ -1374,7 +1479,7 @@ function obtenerBloquesEfectivos(anio, dia) {
   // materias movidas HACIA este día desde otro día
   DIAS.forEach(otroDia => {
     if (otroDia === dia) return;
-    desagruparDia(C().raw[anio][otroDia]).forEach(b => {
+    desagruparDia(rawEfectivo(anio, otroDia)).forEach(b => {
       if (b.esLibre) return;
       const ov = overrides[carreraActual+'|'+anio+'|'+b.materia];
       if (ov && ov.dia === dia) {
@@ -1388,8 +1493,65 @@ function obtenerBloquesEfectivos(anio, dia) {
     });
   });
 
+  bloques = aplicarMateriasManuales(bloques, anio, dia);
   return bloques;
 }
+
+/* ================= MATERIAS AGREGADAS A MANO (por si cambia el horario y
+   aparece una clase en un lugar que antes estaba vacío) ================= */
+let materiasManuales = {};
+function claveManual(anio, dia, rowStart) {
+  return carreraActual+'|'+anio+'|'+dia+'|'+rowStart;
+}
+async function cargarMateriasManuales() {
+  const v = await storageGet('iide-manuales');
+  try { materiasManuales = v ? JSON.parse(v) : {}; } catch(e) { materiasManuales = {}; }
+}
+async function guardarMateriasManuales() {
+  await storageSet('iide-manuales', JSON.stringify(materiasManuales));
+}
+
+/* ================= VACIAR UN HORARIO (por si en el futuro esa franja deja
+   de tener esa materia): marca esa fila puntual como libre, sin importar
+   lo que diga el horario original -- se puede volver a llenar después. ================= */
+let materiasVaciadas = {};
+function claveVaciado(anio, dia, rowStart) {
+  return carreraActual+'|'+anio+'|'+dia+'|'+rowStart;
+}
+async function cargarMateriasVaciadas() {
+  const v = await storageGet('iide-vaciadas');
+  try { materiasVaciadas = v ? JSON.parse(v) : {}; } catch(e) { materiasVaciadas = {}; }
+}
+async function guardarMateriasVaciadas() {
+  await storageSet('iide-vaciadas', JSON.stringify(materiasVaciadas));
+}
+// El horario "real" a usar en toda la app: el original, pero con las franjas
+// vaciadas a mano convertidas en huecos (null), como si nunca hubiera habido nada.
+function rawEfectivo(anio, dia) {
+  return C().raw[anio][dia].map((slot, i) => {
+    return materiasVaciadas[claveVaciado(anio, dia, i+1)] ? null : slot;
+  });
+}
+
+// Reemplaza los huecos vacíos de una lista de bloques por la materia agregada
+// a mano, si existe para esa fila -- así aparece en la grilla como cualquier otra.
+function aplicarMateriasManuales(bloques, anio, dia) {
+  bloques.forEach(b => {
+    if (!b.esLibre) return;
+    const m = materiasManuales[claveManual(anio, dia, b.rowStart)];
+    if (m) {
+      b.esLibre = false;
+      b.esManual = true;
+      b.materia = m.materia;
+      b.materiaOriginal = m.materia;
+      b.diaOriginal = dia;
+      b.prof = m.prof;
+      b.aula = m.aula;
+    }
+  });
+  return bloques;
+}
+
 
 /* ================= OVERRIDES (ediciones guardadas) ================= */
 let overrides = {};
@@ -1636,7 +1798,10 @@ function showToast(msg) {
 
 function openEdit(anio, dia, bloque, cellEl) {
   const materiaOriginal = bloque.materiaOriginal || bloque.materia;
-  editContext = { anio, dia: bloque.diaOriginal || dia, materia: materiaOriginal, ini: bloque.ini };
+  editContext = {
+    anio, dia: bloque.diaOriginal || dia, materia: materiaOriginal, ini: bloque.ini,
+    rowStart: bloque.rowStart, rowEnd: bloque.rowEnd, esManual: !!bloque.esManual,
+  };
   document.getElementById('emTitle').textContent = bloque.materia + ' · ' + DIAS_LABEL[dia] + ' (' + anio + '° Año)';
   document.getElementById('emSub').textContent = bloque.ini + ' – ' + bloque.fin;
   document.getElementById('emMateria').value = bloque.materia;
@@ -1700,6 +1865,79 @@ async function saveEdit() {
   renderSheet();
 }
 
+// Vacía la materia que se está editando -- si fue agregada a mano, la borra
+// directamente; si es una materia real del horario, marca esa franja como
+// libre (sin tocar el resto del horario original, ni otras franjas de esa
+// misma materia si aparece en otro día).
+async function vaciarHorario() {
+  if (!editContext) return;
+  if (editContext.esManual) {
+    delete materiasManuales[claveManual(editContext.anio, editContext.dia, editContext.rowStart)];
+    await guardarMateriasManuales();
+  } else {
+    for (let r = editContext.rowStart; r < editContext.rowEnd; r++) {
+      materiasVaciadas[claveVaciado(editContext.anio, editContext.dia, r)] = true;
+    }
+    await guardarMateriasVaciadas();
+  }
+  closeEdit();
+  renderSheet();
+  showToast('Horario vaciado');
+}
+
+/* ================= AGREGAR MATERIA A MANO (en un horario vacío) ================= */
+let addContext = null;
+
+function slotsVaciosDe(anio, dia) {
+  return desagruparDia(rawEfectivo(anio, dia))
+    .map((b, i) => ({ ...b, idx:i+1 }))
+    .filter(b => b.esLibre && !materiasManuales[claveManual(anio, dia, b.idx)]);
+}
+
+function openAddModal(dia) {
+  addContext = { dia };
+  const anioSel = document.getElementById('addAnio');
+  anioSel.innerHTML = C().anios.map(a => `<option value="${a}">${a}° Año</option>`).join('');
+  anioSel.onchange = () => poblarHorariosAgregar(dia);
+  document.getElementById('addMateria').value = '';
+  document.getElementById('addProf').value = '';
+  document.getElementById('addAula').value = '';
+  document.getElementById('addSub').textContent = DIAS_LABEL[dia] + ' · Para cuando cambian el horario y aparece una clase nueva';
+  poblarHorariosAgregar(dia);
+  document.getElementById('addOverlay').classList.add('show');
+}
+function poblarHorariosAgregar(dia) {
+  const anio = Number(document.getElementById('addAnio').value);
+  const horSel = document.getElementById('addHorario');
+  const libres = slotsVaciosDe(anio, dia);
+  if (libres.length === 0) {
+    horSel.innerHTML = `<option value="">No hay horarios libres este día</option>`;
+  } else {
+    horSel.innerHTML = libres.map(s => `<option value="${s.idx}">${C().slots[s.idx-1].ini} – ${C().slots[s.idx-1].fin}</option>`).join('');
+  }
+}
+function closeAddModal() {
+  document.getElementById('addOverlay').classList.remove('show');
+  addContext = null;
+}
+async function saveAdd() {
+  if (!addContext) return;
+  const anio = Number(document.getElementById('addAnio').value);
+  const rowStart = Number(document.getElementById('addHorario').value);
+  const materia = document.getElementById('addMateria').value.trim();
+  if (!rowStart || !materia) { showToast('Completá el horario y el nombre de la materia'); return; }
+  materiasManuales[claveManual(anio, addContext.dia, rowStart)] = {
+    materia,
+    prof: document.getElementById('addProf').value.trim() || 'A confirmar',
+    aula: document.getElementById('addAula').value.trim() || 'A confirmar',
+  };
+  await guardarMateriasManuales();
+  closeAddModal();
+  renderSheet();
+  renderManageList();
+  showToast('Materia agregada');
+}
+
 /* ================= ARRASTRAR EL MODAL DE EDICIÓN, SIEMPRE ADENTRO DE LA PANTALLA ================= */
 (function initArrastreModalEdicion() {
   const modal = document.getElementById('editModal');
@@ -1753,6 +1991,103 @@ function tickClock() {
     String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
 }
 
+/* ================= VISOR DE FOTO: zoom con pellizco, arrastrar, doble toque, rotar ================= */
+const FOTOS_HORARIO = {
+  as: { src:'horarios-originales/horario-analista-sistemas-2026-c2.jpg', titulo:'Analista de Sistemas · 2do Cuatrimestre 2026' },
+  ae: { src:'horarios-originales/horario-adm-empresas-2026-c2.jpg', titulo:'Administración de Empresas · 2do Cuatrimestre 2026' },
+};
+const fotoEstado = { scale:1, x:0, y:0, rot:0 };
+const fotoPunteros = new Map();
+let fotoPinchDist = 0, fotoPinchEscala = 1, fotoUltimoToque = 0;
+
+function fotoAplicar() {
+  const img = document.getElementById('fotoImg');
+  const stage = document.getElementById('fotoStage');
+  const girada = (fotoEstado.rot % 180) !== 0;
+  // Si está girada de costado, usamos el alto de la pantalla como ancho máximo
+  img.style.maxWidth = girada ? stage.clientHeight + 'px' : '100%';
+  img.style.maxHeight = girada ? stage.clientWidth + 'px' : '100%';
+  img.style.transform = `translate(${fotoEstado.x}px, ${fotoEstado.y}px) rotate(${fotoEstado.rot}deg) scale(${fotoEstado.scale})`;
+}
+function fotoReset() { fotoEstado.scale = 1; fotoEstado.x = 0; fotoEstado.y = 0; fotoEstado.rot = 0; }
+
+function abrirFoto() {
+  const f = FOTOS_HORARIO[carreraActual];
+  if (!f) return;
+  fotoReset();
+  document.getElementById('fotoTitulo').textContent = f.titulo;
+  document.getElementById('fotoImg').src = f.src;
+  document.getElementById('fotoOverlay').classList.add('show');
+  requestAnimationFrame(fotoAplicar);
+}
+function cerrarFoto() {
+  document.getElementById('fotoOverlay').classList.remove('show');
+  fotoPunteros.clear();
+}
+function fotoZoom(delta) {
+  fotoEstado.scale = Math.min(6, Math.max(1, fotoEstado.scale + delta));
+  if (fotoEstado.scale === 1) { fotoEstado.x = 0; fotoEstado.y = 0; }
+  fotoAplicar();
+}
+function fotoRotar() {
+  fotoEstado.rot = (fotoEstado.rot + 90) % 360;
+  fotoEstado.x = 0; fotoEstado.y = 0; fotoEstado.scale = 1;
+  fotoAplicar();
+}
+
+(function initVisorFoto() {
+  const stage = document.getElementById('fotoStage');
+  if (!stage) return;
+
+  stage.addEventListener('pointerdown', (e) => {
+    stage.setPointerCapture(e.pointerId);
+    fotoPunteros.set(e.pointerId, { x:e.clientX, y:e.clientY });
+    if (fotoPunteros.size === 2) {
+      const [a, b] = [...fotoPunteros.values()];
+      fotoPinchDist = Math.hypot(a.x - b.x, a.y - b.y);
+      fotoPinchEscala = fotoEstado.scale;
+    } else if (fotoPunteros.size === 1) {
+      // doble toque: alterna entre zoom normal y zoom grande
+      const ahora = Date.now();
+      if (ahora - fotoUltimoToque < 300) {
+        if (fotoEstado.scale > 1) { fotoEstado.scale = 1; fotoEstado.x = 0; fotoEstado.y = 0; }
+        else { fotoEstado.scale = 2.5; }
+        fotoAplicar();
+      }
+      fotoUltimoToque = ahora;
+    }
+  });
+
+  stage.addEventListener('pointermove', (e) => {
+    const p = fotoPunteros.get(e.pointerId);
+    if (!p) return;
+    if (fotoPunteros.size === 2) {
+      p.x = e.clientX; p.y = e.clientY;
+      const [a, b] = [...fotoPunteros.values()];
+      const dist = Math.hypot(a.x - b.x, a.y - b.y);
+      if (fotoPinchDist > 0) {
+        fotoEstado.scale = Math.min(6, Math.max(1, fotoPinchEscala * dist / fotoPinchDist));
+        if (fotoEstado.scale === 1) { fotoEstado.x = 0; fotoEstado.y = 0; }
+        fotoAplicar();
+      }
+    } else if (fotoPunteros.size === 1 && fotoEstado.scale > 1) {
+      fotoEstado.x += e.clientX - p.x;
+      fotoEstado.y += e.clientY - p.y;
+      p.x = e.clientX; p.y = e.clientY;
+      fotoAplicar();
+    } else {
+      p.x = e.clientX; p.y = e.clientY;
+    }
+  });
+
+  const soltar = (e) => { fotoPunteros.delete(e.pointerId); fotoPinchDist = 0; };
+  stage.addEventListener('pointerup', soltar);
+  stage.addEventListener('pointercancel', soltar);
+  window.addEventListener('resize', () => {
+    if (document.getElementById('fotoOverlay').classList.contains('show')) fotoAplicar();
+  });
+})();
+
 async function init() {
   await cargarTema();
   await cargarTamanoLetra();
@@ -1762,6 +2097,8 @@ async function init() {
 
   // splash: logo -> "cargando" -> datos listos -> se abre la app
   await cargarOverrides();
+  await cargarMateriasManuales();
+  await cargarMateriasVaciadas();
   renderSheet();
   setInterval(() => { tickClock(); renderSheet(); }, 30000);
   setInterval(tickClock, 1000);
